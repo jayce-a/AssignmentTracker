@@ -516,11 +516,11 @@
 
     const fullName = unit ? `Unit ${unit}: ${name}` : name;
 
-    assignmentsRef.add({
+     assignmentsRef.add({
       class: className,
       name: fullName,
       link: link || null,
-      dueDate: dueDate, // stored as YYYY-MM-DD string, sorts correctly as text
+      dueDate: dueDate,
       status: 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
@@ -529,6 +529,9 @@
       document.getElementById('fName').value = '';
       document.getElementById('fLink').value = '';
       document.getElementById('fDate').value = '';
+    }).catch((err) => {
+      alert('Save failed: ' + err.message);
+      console.error(err);
     });
   };
 </script>
