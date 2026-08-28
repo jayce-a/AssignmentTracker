@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assignment Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #dde3df;
+    --paper-card: #eef1ee;
+    --ink: #262b2a;
+    --ink-soft: #5b625f;
+    --line: #c3ccc6;
+    --macro: #c1852c;
+    --macro-bg: #f3e6cf;
+    --micro: #2f746e;
+    --micro-bg: #dbe9e7;
+    --apush: #9c4a3a;
+    --apush-bg: #f0dcd6;
+    --plum: #564a86;
+    --plum-dark: #453a70;
+    --danger: #a83c3c;
+    --radius: 4px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px);
+    background-size: 100% 42px;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 36px 24px 20px;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  header .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 6px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 40px);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .tab {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tab:hover { border-color: var(--ink-soft); }
+  .tab.active { background: var(--ink); color: var(--paper-card); border-color: var(--ink); }
+
+  .right-controls { display: flex; gap: 8px; align-items: center; }
+
+  select, .add-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+  }
+
+  .add-btn {
+    background: var(--plum);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .add-btn:hover { background: var(--plum-dark); }
+
+  .list { display: flex; flex-direction: column; gap: 10px; }
+
+  .card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--ink);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .card.done { opacity: 0.55; }
+  .card.macro { border-left-color: var(--macro); }
+  .card.micro { border-left-color: var(--micro); }
+  .card.apush { border-left-color: var(--apush); }
+
+  .check {
+    width: 20px; height: 20px;
+    border: 2px solid var(--ink-soft);
+    border-radius: 50%;
+    cursor: pointer;
+    background: transparent;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: transparent;
+  }
+  .card.done .check { background: var(--ink-soft); color: #fff; }
+
+  .info a, .info span.name { font-weight: 600; color: var(--ink); text-decoration: none; }
+  .info a:hover { text-decoration: underline; }
+  .card.done .info a, .card.done .info span.name { text-decoration: line-through; }
+
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+  .tag.macro { background: var(--macro-bg); color: var(--macro); }
+  .tag.micro { background: var(--micro-bg); color: var(--micro); }
+  .tag.apush { background: var(--apush-bg); color: var(--apush); }
+  .tag.other { background: #e2e2e2; color: var(--ink-soft); }
+
+  .stamp {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border: 1.5px solid var(--ink-soft);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    white-space: nowrap;
+    transform: rotate(-2deg);
+  }
+  .stamp.overdue { border-color: var(--danger); color: var(--danger); }
+  .stamp.today { border-color: var(--macro); color: var(--macro); }
+
+  .del-btn {
+    background: none; border: none; color: var(--ink-soft);
+    cursor: pointer; font-size: 16px; padding: 4px;
+  }
+  .del-btn:hover { color: var(--danger); }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* Modal */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(38,43,42,0.4);
+    align-items: center; justify-content: center;
+    padding: 20px;
+    z-index: 10;
+  }
+  .overlay.show { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .modal h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+  }
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;
+  }
+  .btn-secondary {
+    background: none; border: 1px solid var(--line);
+    padding: 8px 14px; border-radius: var(--radius); cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 13px;
+  }
+  .btn-primary {
+    background: var(--plum); color: #fff; border: none;
+    padding: 8px 14px; border-radius: var(--radius); cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  }
+  .btn-primary:hover { background: var(--plum-dark); }
+  .btn-primary:disabled { background: #b7b0d1; cursor: not-allowed; }
+
+  #connStatus {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Jayce &amp; Anna — shared coursework</p>
+  <h1>Assignment Ledger</h1>
+  <p id="connStatus">Connecting…</p>
+</header>
+
+<div class="container">
+
+  <div class="toolbar">
+    <div class="tabs" id="classTabs">
+      <button class="tab active" data-class="all">All</button>
+      <button class="tab" data-class="AP Macro">AP Macro</button>
+      <button class="tab" data-class="AP Micro">AP Micro</button>
+      <button class="tab" data-class="APUSH">APUSH</button>
+    </div>
+    <div class="right-controls">
+      <select id="statusFilter">
+        <option value="pending">Pending</option>
+        <option value="all">All</option>
+        <option value="done">Done</option>
+      </select>
+      <select id="sortOrder">
+        <option value="due-asc">Due date ↑</option>
+        <option value="due-desc">Due date ↓</option>
+        <option value="class">By class</option>
+      </select>
+      <button class="add-btn" id="openAdd">+ Add assignment</button>
+    </div>
+  </div>
+
+  <div class="list" id="list"></div>
+  <div class="empty" id="emptyState" style="display:none;">Nothing here — add an assignment above.</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>New assignment</h2>
+
+    <div class="field">
+      <label for="fClass">Class</label>
+      <select id="fClass">
+        <option value="AP Macro">AP Macro</option>
+        <option value="AP Micro">AP Micro</option>
+        <option value="APUSH">APUSH</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="field" id="otherClassField" style="display:none;">
+      <label for="fClassOther">Class name</label>
+      <input type="text" id="fClassOther" placeholder="e.g. English Lit">
+    </div>
+
+    <div class="field">
+      <label for="fUnit">Unit number</label>
+      <input type="text" id="fUnit" placeholder="e.g. 3" inputmode="numeric">
+    </div>
+
+    <div class="field">
+      <label for="fName">Assignment name</label>
+      <input type="text" id="fName" placeholder="e.g. Fiscal Policy Essay">
+    </div>
+
+    <div class="field">
+      <label for="fLink">Link (optional)</label>
+      <input type="url" id="fLink" placeholder="https://…">
+    </div>
+
+    <div class="field">
+      <label for="fDate">Due date</label>
+      <input type="date" id="fDate">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="cancelAdd">Cancel</button>
+      <button class="btn-primary" id="saveAdd">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase (compat SDK — no build step needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  // ======================================================
+  // 1. PASTE YOUR OWN FIREBASE CONFIG HERE
+  //    (Firebase console → Project settings → General → Your apps → Web app)
+  // ======================================================
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const assignmentsRef = db.collection("assignments");
+
+  const connStatus = document.getElementById('connStatus');
+  let assignments = []; // local cache of {id, class, name, link, dueDate, status, createdAt}
+
+  // ---- Realtime listener: this replaces ALL of the old polling logic ----
+  assignmentsRef.onSnapshot(
+    (snapshot) => {
+      assignments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      connStatus.textContent = `Synced — ${assignments.length} assignment${assignments.length === 1 ? '' : 's'}`;
+      render();
+    },
+    (err) => {
+      connStatus.textContent = 'Connection error — check your Firebase config in index.html';
+      console.error(err);
+    }
+  );
+
+  function classKey(className) {
+    if (className === 'AP Macro') return 'macro';
+    if (className === 'AP Micro') return 'micro';
+    if (className === 'APUSH') return 'apush';
+    return 'other';
+  }
+
+  function formatStamp(dueDateStr, status) {
+    const due = new Date(dueDateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const diffDays = Math.round((due - today) / 86400000);
+
+    const label = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    if (status === 'done') return { text: label, cls: '' };
+    if (diffDays < 0) return { text: `${label} · overdue`, cls: 'overdue' };
+    if (diffDays === 0) return { text: `${label} · today`, cls: 'today' };
+    if (diffDays === 1) return { text: `${label} · tomorrow`, cls: '' };
+    return { text: `${label} · ${diffDays}d`, cls: '' };
+  }
+
+  function render() {
+    const activeTab = document.querySelector('.tab.active').dataset.class;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const sortOrder = document.getElementById('sortOrder').value;
+
+    let filtered = assignments.filter(a => {
+      if (activeTab !== 'all' && a.class !== activeTab) return false;
+      if (statusFilter !== 'all' && (a.status || 'pending') !== statusFilter) return false;
+      return true;
+    });
+
+    filtered.sort((a, b) => {
+      if (sortOrder === 'due-asc') return a.dueDate.localeCompare(b.dueDate);
+      if (sortOrder === 'due-desc') return b.dueDate.localeCompare(a.dueDate);
+      if (sortOrder === 'class') return a.class.localeCompare(b.class) || a.dueDate.localeCompare(b.dueDate);
+      return 0;
+    });
+
+    const list = document.getElementById('list');
+    const empty = document.getElementById('emptyState');
+    list.innerHTML = '';
+
+    if (filtered.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    filtered.forEach(a => {
+      const key = classKey(a.class);
+      const stamp = formatStamp(a.dueDate, a.status);
+      const isDone = a.status === 'done';
+
+      const card = document.createElement('div');
+      card.className = `card ${key} ${isDone ? 'done' : ''}`;
+
+      const check = document.createElement('button');
+      check.className = 'check';
+      check.textContent = isDone ? '✓' : '';
+      check.onclick = () => toggleDone(a.id, !isDone);
+
+      const info = document.createElement('div');
+      info.className = 'info';
+      const nameEl = a.link
+        ? Object.assign(document.createElement('a'), { href: a.link, target: '_blank', rel: 'noopener', textContent: a.name })
+        : Object.assign(document.createElement('span'), { className: 'name', textContent: a.name });
+      const tag = document.createElement('span');
+      tag.className = `tag ${key}`;
+      tag.textContent = a.class;
+      info.appendChild(nameEl);
+      info.appendChild(document.createElement('br'));
+      info.appendChild(tag);
+
+      const stampEl = document.createElement('div');
+      stampEl.className = `stamp ${stamp.cls}`;
+      stampEl.textContent = stamp.text;
+
+      const del = document.createElement('button');
+      del.className = 'del-btn';
+      del.textContent = '✕';
+      del.title = 'Delete';
+      del.onclick = () => {
+        if (confirm(`Delete "${a.name}"?`)) assignmentsRef.doc(a.id).delete();
+      };
+
+      card.appendChild(check);
+      card.appendChild(info);
+      card.appendChild(stampEl);
+      card.appendChild(del);
+      list.appendChild(card);
+    });
+  }
+
+  function toggleDone(id, done) {
+    assignmentsRef.doc(id).update({ status: done ? 'done' : 'pending' });
+  }
+
+  // ---- Filter/sort controls ----
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      render();
+    };
+  });
+  document.getElementById('statusFilter').onchange = render;
+  document.getElementById('sortOrder').onchange = render;
+
+  // ---- Add-assignment modal ----
+  const overlay = document.getElementById('overlay');
+  document.getElementById('openAdd').onclick = () => overlay.classList.add('show');
+  document.getElementById('cancelAdd').onclick = () => overlay.classList.remove('show');
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('show'); };
+
+  document.getElementById('fClass').onchange = (e) => {
+    document.getElementById('otherClassField').style.display = e.target.value === 'Other' ? 'block' : 'none';
+  };
+
+  document.getElementById('saveAdd').onclick = () => {
+    const classSel = document.getElementById('fClass').value;
+    const className = classSel === 'Other'
+      ? document.getElementById('fClassOther').value.trim()
+      : classSel;
+    const unit = document.getElementById('fUnit').value.trim();
+    const name = document.getElementById('fName').value.trim();
+    const link = document.getElementById('fLink').value.trim();
+    const dueDate = document.getElementById('fDate').value;
+
+    if (!className || !name || !dueDate) {
+      alert('Class, assignment name, and due date are required.');
+      return;
+    }
+
+    const fullName = unit ? `Unit ${unit}: ${name}` : name;
+
+    assignmentsRef.add({
+      class: className,
+      name: fullName,
+      link: link || null,
+      dueDate: dueDate, // stored as YYYY-MM-DD string, sorts correctly as text
+      status: 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      overlay.classList.remove('show');
+      document.getElementById('fUnit').value = '';
+      document.getElementById('fName').value = '';
+      document.getElementById('fLink').value = '';
+      document.getElementById('fDate').value = '';
+    });
+  };
+</script>
+</body>
+</html>
