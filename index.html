@@ -257,14 +257,75 @@
     color: var(--ink-soft);
     margin-top: 4px;
   }
+
+  /* Login gate */
+  #loginGate {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    padding: 20px;
+  }
+  #loginGate h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 28px;
+    margin: 0;
+  }
+  #loginGate p { color: var(--ink-soft); font-size: 13px; margin: 0; max-width: 320px; }
+  #pwForm { display: flex; gap: 8px; }
+  #pwInput {
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    width: 200px;
+  }
+  #pwSubmit {
+    background: var(--plum);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #pwSubmit:hover { background: var(--plum-dark); }
+  #authError { color: var(--danger); font-size: 12px; font-family: 'IBM Plex Mono', monospace; display: none; }
+  #signOutLink {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-decoration: underline;
+    margin-left: 10px;
+  }
+  #appShell { display: none; }
 </style>
 </head>
 <body>
 
+<div id="loginGate">
+  <h1>Assignment Ledger</h1>
+  <p>Enter the password to view or edit.</p>
+  <form id="pwForm">
+    <input type="password" id="pwInput" placeholder="Password" autofocus>
+    <button type="submit" id="pwSubmit">Enter</button>
+  </form>
+  <p id="authError"></p>
+</div>
+
+<div id="appShell">
 <header>
   <p class="eyebrow">Jayce &amp; Anna — shared coursework</p>
   <h1>Assignment Ledger</h1>
-  <p id="connStatus">Connecting…</p>
+  <p id="connStatus"><span id="connStatusText">Connecting…</span> <span id="signOutLink">Sign out</span></p>
 </header>
 
 <div class="container">
@@ -345,10 +406,55 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script>
   // ======================================================
+  // PASSWORD GATE
+  // The page shows nothing and loads no Firebase data until this passes.
+  // The password itself is never stored in plaintext here — only its
+  // SHA-256 hash — but be aware: on a static site with no backend, anyone
+  // determined enough to view-source and inspect network requests could
+  // still work around a client-side gate like this. It stops casual
+  // visitors, search engines, and anyone just guessing the URL — it is
+  // NOT equivalent to real server-side authentication.
+  // ======================================================
+  const PASSWORD_HASH = "20324a63e844d220158c27120fd3653ed70612d5f31d7d724c9bcddbfb9e4f20"; // "bubbadookie"
+  const SESSION_KEY = "ledger_unlocked";
+
+  async function sha256Hex(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function showApp() {
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    initApp();
+  }
+
+  document.getElementById('pwForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const entered = document.getElementById('pwInput').value;
+    const hash = await sha256Hex(entered);
+    const errEl = document.getElementById('authError');
+    if (hash === PASSWORD_HASH) {
+      localStorage.setItem(SESSION_KEY, '1');
+      errEl.style.display = 'none';
+      showApp();
+    } else {
+      errEl.textContent = 'Wrong password.';
+      errEl.style.display = 'block';
+      document.getElementById('pwInput').value = '';
+    }
+  });
+
+  document.getElementById('signOutLink').addEventListener('click', () => {
+    localStorage.removeItem(SESSION_KEY);
+    location.reload();
+  });
+
+  // ======================================================
   // 1. PASTE YOUR OWN FIREBASE CONFIG HERE
   //    (Firebase console → Project settings → General → Your apps → Web app)
   // ======================================================
-  const firebaseConfig = {
+   const firebaseConfig = {
   	apiKey: "AIzaSyDJ1EcFNKlxtF0MENvPiVwN0BWHug1d5yI",
   	authDomain: "bums-assignment-tracker.firebaseapp.com",
   	projectId: "bums-assignment-tracker",
@@ -359,12 +465,14 @@
 	};
 
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const assignmentsRef = db.collection("assignments");
-
-  const connStatus = document.getElementById('connStatus');
+  let db, assignmentsRef;
+  const connStatus = document.getElementById('connStatusText');
   let assignments = []; // local cache of {id, class, name, link, dueDate, status, createdAt}
+
+  function initApp() {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  assignmentsRef = db.collection("assignments");
 
   // ---- Realtime listener: this replaces ALL of the old polling logic ----
   assignmentsRef.onSnapshot(
@@ -378,6 +486,12 @@
       console.error(err);
     }
   );
+  } // end initApp()
+
+  // Skip the password prompt if this browser already unlocked it before
+  if (localStorage.getItem(SESSION_KEY) === '1') {
+    showApp();
+  }
 
   function classKey(className) {
     if (className === 'AP Macro') return 'macro';
@@ -516,11 +630,11 @@
 
     const fullName = unit ? `Unit ${unit}: ${name}` : name;
 
-     assignmentsRef.add({
+    assignmentsRef.add({
       class: className,
       name: fullName,
       link: link || null,
-      dueDate: dueDate,
+      dueDate: dueDate, // stored as YYYY-MM-DD string, sorts correctly as text
       status: 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
@@ -529,9 +643,6 @@
       document.getElementById('fName').value = '';
       document.getElementById('fLink').value = '';
       document.getElementById('fDate').value = '';
-    }).catch((err) => {
-      alert('Save failed: ' + err.message);
-      console.error(err);
     });
   };
 </script>
