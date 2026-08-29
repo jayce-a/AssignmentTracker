@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Assignment Tracker</title>
+<title>😛</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>😛</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -15,7 +16,7 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--paper); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 42px; font-family: 'Inter', sans-serif; color: var(--ink); min-height: 100vh; }
   header { padding: 28px 24px 14px; max-width: 960px; margin: 0 auto; }
-  header .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 6px; }
+  header .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--ink-soft); margin: 0 0 6px; }
   h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(26px, 5vw, 38px); margin: 0; letter-spacing: -0.01em; }
   .container { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
 
@@ -32,13 +33,22 @@
   @media (max-width: 560px) { .todayGrid { grid-template-columns: 1fr; } }
 
   /* Sidebar layout — desktop only, per request */
-  .assignGrid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
+  .assignGrid { display: grid; grid-template-columns: 260px 1fr 280px; gap: 20px; align-items: start; }
   .scheduleSidebar { position: sticky; top: 16px; }
   .scheduleSidebar .todayGrid { display: block; }
   .scheduleSidebar .personCol { margin-bottom: 18px; }
-  @media (max-width: 900px) {
+  .chatSidebar { position: sticky; top: 16px; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; height: 70vh; }
+  .chatSidebar b { font-size: 13px; }
+  .chatMiniMessages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding: 8px 0; }
+  .chatMiniMessages .bubble { font-size: 12px; padding: 6px 10px; }
+  .chatMiniMessages .msg-meta { font-size: 9px; }
+  .chatMiniInputBar { display: flex; gap: 5px; }
+  .chatMiniInputBar textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 14px; padding: 6px 10px; font-size: 12px; font-family: inherit; max-height: 56px; }
+  .chatMiniInputBar button { border: none; background: var(--plum); color: #fff; border-radius: 50%; width: 30px; height: 30px; font-size: 13px; cursor: pointer; flex-shrink: 0; }
+  @media (max-width: 1150px) {
     .assignGrid { display: block; }
     .scheduleSidebar { display: none; }
+    .chatSidebar { display: none; }
   }
   .personCol h3 { margin: 0 0 6px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
   .personCol.jayce h3 { color: var(--jayce); } .personCol.anna h3 { color: var(--anna); }
@@ -166,7 +176,7 @@
 
 <div id="appShell">
 <header>
-  <p class="eyebrow">Jayce &amp; Anna — shared coursework</p>
+  <p class="eyebrow">me and my bub locking in</p>
   <h1>Assignment Tracker</h1>
   <p id="connStatus"><span id="connStatusText">Connecting…</span> · Signed in as <b id="whoAmI"></b> <span id="signOutLink">Sign out</span></p>
 </header>
@@ -181,6 +191,15 @@
 <div id="assignmentsPanel">
 <div class="container">
 <div class="assignGrid">
+
+  <aside class="chatSidebar">
+    <b>💬 Chat</b>
+    <div class="chatMiniMessages" id="chatMiniMessages"></div>
+    <div class="chatMiniInputBar">
+      <textarea id="chatMiniInput" rows="1" placeholder="Type a message..."></textarea>
+      <button id="chatMiniSend">➤</button>
+    </div>
+  </aside>
 
   <div class="assignMain">
     <div class="toolbar">
@@ -324,14 +343,16 @@
   document.getElementById('signOutLink').addEventListener('click', () => { localStorage.removeItem(SESSION_KEY); location.reload(); });
 
   // ===================== FIREBASE CONFIG =====================
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
+   const firebaseConfig = {
+  	apiKey: "AIzaSyDJ1EcFNKlxtF0MENvPiVwN0BWHug1d5yI",
+  	authDomain: "bums-assignment-tracker.firebaseapp.com",
+  	projectId: "bums-assignment-tracker",
+  	storageBucket: "bums-assignment-tracker.firebasestorage.app",
+  	messagingSenderId: "314928097882",
+  	appId: "1:314928097882:web:8442546507001fec264663",
+  	measurementId: "G-K2W67B31MW"
+	};
+
 
   const PEOPLE = ['Jayce', 'Anna'];
   const DAY_TYPES = ['Odd', 'Even', 'Trad'];
@@ -388,10 +409,18 @@
       classes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       if (classes.length === 0) {
         const defaults = [{name:'AP Macro',colorHex:'#c1852c'},{name:'AP Micro',colorHex:'#2f746e'},{name:'APUSH',colorHex:'#9c4a3a'}];
-        for (const d of defaults) await classesRef.add({ ...d, archived: false });
+        try {
+          for (const d of defaults) await classesRef.add({ ...d, archived: false });
+        } catch (err) {
+          console.error('Class seeding failed:', err);
+          alert('Could not create default classes: ' + err.message);
+        }
         return;
       }
       renderClassManager(); renderAddClassOptions(); renderClassTabs(); render();
+    }, (err) => {
+      console.error('Classes listener error:', err);
+      alert('Classes aren\'t loading: ' + err.message);
     });
 
     assignmentsRef.onSnapshot((snapshot) => {
@@ -661,7 +690,7 @@
       const sw = document.createElement('div'); sw.className = 'swatch'; sw.style.background = c.colorHex;
       const name = document.createElement('div'); name.className = 'cname'; name.textContent = c.name + (c.archived ? ' (archived)' : '');
       const btn = document.createElement('button'); btn.textContent = c.archived ? 'Restore' : 'Archive';
-      btn.onclick = () => classesRef.doc(c.id).update({ archived: !c.archived });
+      btn.onclick = () => classesRef.doc(c.id).update({ archived: !c.archived }).catch(err => alert('Could not update class: ' + err.message));
       row.appendChild(sw); row.appendChild(name); row.appendChild(btn); wrap.appendChild(row);
     });
   }
@@ -678,7 +707,10 @@
   document.getElementById('closeManageClasses').onclick = () => document.getElementById('overlayClasses').classList.remove('show');
   document.getElementById('addClassBtn').onclick = () => {
     const nameInput = document.getElementById('newClassName'); const name = nameInput.value.trim();
-    if (!name) return; classesRef.add({ name, colorHex: pickedColor, archived: false }); nameInput.value = '';
+    if (!name) return;
+    classesRef.add({ name, colorHex: pickedColor, archived: false })
+      .then(() => { nameInput.value = ''; })
+      .catch(err => alert('Could not add class: ' + err.message));
   };
 
   // ===================== ADD ASSIGNMENT =====================
@@ -734,7 +766,8 @@
         const rm = document.createElement('button'); rm.className = 'manage-btn'; rm.textContent = '✕';
         rm.onclick = () => {
           const newPeriods = doc.periods.filter((_, i) => i !== idx);
-          schedulesRef.doc(key).set({ person: myName, dayType: dt, periods: newPeriods });
+          schedulesRef.doc(key).set({ person: myName, dayType: dt, periods: newPeriods })
+            .catch(err => alert('Could not remove period: ' + err.message));
         };
         row.appendChild(rm); rowsWrap.appendChild(row);
       });
@@ -749,7 +782,8 @@
       addBtn.onclick = () => {
         if (!startInput.value || !endInput.value || !classInput.value.trim()) return;
         const newPeriods = [...doc.periods, { start: startInput.value, end: endInput.value, className: classInput.value.trim(), teacher: teacherInput.value.trim() }];
-        schedulesRef.doc(key).set({ person: myName, dayType: dt, periods: newPeriods });
+        schedulesRef.doc(key).set({ person: myName, dayType: dt, periods: newPeriods })
+          .catch(err => alert('Could not save period: ' + err.message));
         startInput.value = ''; endInput.value = ''; classInput.value = ''; teacherInput.value = '';
       };
       addRow.appendChild(startInput); addRow.appendChild(endInput); addRow.appendChild(classInput); addRow.appendChild(teacherInput); addRow.appendChild(addBtn);
@@ -773,32 +807,44 @@
     const label = document.getElementById('linkLabel').value.trim();
     const url = document.getElementById('linkUrl').value.trim();
     if (!url) return;
-    linksRef.add({ label: label || url, url, addedBy: myName, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    linksRef.add({ label: label || url, url, addedBy: myName, createdAt: firebase.firestore.FieldValue.serverTimestamp() })
+      .catch(err => alert('Could not add link: ' + err.message));
     document.getElementById('linkLabel').value = ''; document.getElementById('linkUrl').value = '';
   };
 
   // ===================== CHAT =====================
+  function buildMessageRow(m) {
+    const row = document.createElement('div'); row.className = 'msg-row ' + (m.sender === myName ? 'mine' : 'theirs');
+    const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = m.text;
+    const meta = document.createElement('div'); meta.className = 'msg-meta';
+    const t = m.timestamp && m.timestamp.toDate ? m.timestamp.toDate() : new Date();
+    meta.textContent = (m.sender === myName ? 'You' : m.sender) + ' · ' + t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    row.appendChild(bubble); row.appendChild(meta);
+    return row;
+  }
   function renderChat() {
-    const container = document.getElementById('chatMessages'); container.innerHTML = '';
+    const full = document.getElementById('chatMessages'); full.innerHTML = '';
+    const mini = document.getElementById('chatMiniMessages'); mini.innerHTML = '';
     messages.forEach(m => {
-      const row = document.createElement('div'); row.className = 'msg-row ' + (m.sender === myName ? 'mine' : 'theirs');
-      const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = m.text;
-      const meta = document.createElement('div'); meta.className = 'msg-meta';
-      const t = m.timestamp && m.timestamp.toDate ? m.timestamp.toDate() : new Date();
-      meta.textContent = (m.sender === myName ? 'You' : m.sender) + ' · ' + t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-      row.appendChild(bubble); row.appendChild(meta); container.appendChild(row);
+      full.appendChild(buildMessageRow(m));
+      mini.appendChild(buildMessageRow(m));
     });
     scrollChatToBottom();
   }
-  function scrollChatToBottom() { const c = document.getElementById('chatMessages'); c.scrollTop = c.scrollHeight; }
-  function sendChat() {
-    const input = document.getElementById('chatInput'); const text = input.value.trim();
-    if (!text) return; input.value = '';
+  function scrollChatToBottom() {
+    const c = document.getElementById('chatMessages'); c.scrollTop = c.scrollHeight;
+    const m = document.getElementById('chatMiniMessages'); m.scrollTop = m.scrollHeight;
+  }
+  function sendChatFrom(inputEl) {
+    const text = inputEl.value.trim();
+    if (!text) return; inputEl.value = '';
     messagesRef.add({ sender: myName, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
       .catch(err => alert('Message failed to send: ' + err.message));
   }
-  document.getElementById('chatSend').onclick = sendChat;
-  document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+  document.getElementById('chatSend').onclick = () => sendChatFrom(document.getElementById('chatInput'));
+  document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatFrom(document.getElementById('chatInput')); } });
+  document.getElementById('chatMiniSend').onclick = () => sendChatFrom(document.getElementById('chatMiniInput'));
+  document.getElementById('chatMiniInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatFrom(document.getElementById('chatMiniInput')); } });
 
   // ===================== BOOT =====================
   const savedUser = localStorage.getItem(SESSION_KEY);
