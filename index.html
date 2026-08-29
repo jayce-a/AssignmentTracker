@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>😛</title>
+<title></title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>😛</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -14,13 +14,13 @@
     --jayce: #6d5c5e; --anna: #c14e72;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 42px; font-family: 'Inter', sans-serif; color: var(--ink); min-height: 100vh; }
-  header { padding: 28px 24px 14px; max-width: 960px; margin: 0 auto; }
+  body { margin: 0; background: var(--paper); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 42px; font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--ink); min-height: 100vh; }
+  header { padding: 28px 24px 14px; max-width: 1500px; margin: 0 auto; }
   header .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--ink-soft); margin: 0 0 6px; }
   h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(26px, 5vw, 38px); margin: 0; letter-spacing: -0.01em; }
-  .container { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
+  .container { max-width: 1500px; margin: 0 auto; padding: 0 24px 80px; }
 
-  .topnav { display: flex; gap: 8px; padding: 0 24px; max-width: 960px; margin: 0 auto; flex-wrap: wrap; }
+  .topnav { display: flex; gap: 8px; padding: 0 24px; max-width: 1500px; margin: 0 auto; flex-wrap: wrap; }
   .topnav button { font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 8px 14px; border: 1px solid var(--line); border-bottom: none; border-radius: 6px 6px 0 0; background: var(--paper); color: var(--ink-soft); cursor: pointer; }
   .topnav button.active { background: var(--paper-card); color: var(--ink); font-weight: 600; }
 
@@ -132,7 +132,7 @@
   #appShell { display: none; }
 
   #chatPanel, #schedulePanel, #linksPanel { display: none; }
-  #chatWrap { max-width: 960px; margin: 0 auto; padding: 0 24px 40px; display: flex; flex-direction: column; height: calc(100vh - 160px); min-height: 400px; }
+  #chatWrap { max-width: 1500px; margin: 0 auto; padding: 0 24px 40px; display: flex; flex-direction: column; height: calc(100vh - 160px); min-height: 400px; }
   #chatMessages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 10px 0; }
   .msg-row { display: flex; flex-direction: column; max-width: 75%; }
   .msg-row.mine { align-self: flex-end; align-items: flex-end; }
@@ -145,6 +145,18 @@
   #chatInput { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 18px; padding: 8px 14px; font-size: 13px; font-family: inherit; max-height: 70px; }
   #chatSend { border: none; background: var(--plum); color: #fff; border-radius: 50%; width: 36px; height: 36px; font-size: 15px; cursor: pointer; flex-shrink: 0; }
   #chatSend:hover { background: var(--plum-dark); }
+
+  .heartWrap { position: relative; margin-top: 10px; display: flex; justify-content: center; }
+  .heartBtn { position: relative; overflow: hidden; width: 130px; height: 32px; border-radius: 6px; border: 1px solid var(--line); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--anna); }
+  .heartBtn:disabled { cursor: default; opacity: 0.9; }
+  .heartFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: rgba(193,78,114,0.18); pointer-events: none; }
+  .heartBubble { position: absolute; bottom: 40px; left: 50%; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 12px; max-width: 220px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.12); pointer-events: none; animation: floatUp 3s ease forwards; z-index: 5; }
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translate(-50%, 10px); }
+    15% { opacity: 1; transform: translate(-50%, 0); }
+    78% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -46px); }
+  }
 
   /* Schedule editor */
   .blockInfo { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); margin: 0 0 8px; }
@@ -198,6 +210,9 @@
     <div class="chatMiniInputBar">
       <textarea id="chatMiniInput" rows="1" placeholder="Type a message..."></textarea>
       <button id="chatMiniSend">➤</button>
+    </div>
+    <div class="heartWrap">
+      <button class="heartBtn" id="heartBtnDesktop"><span class="heartFill" id="heartFillDesktop"></span>❤️</button>
     </div>
   </aside>
 
@@ -274,6 +289,9 @@
       <textarea id="chatInput" rows="1" placeholder="Type a message..."></textarea>
       <button id="chatSend">➤</button>
     </div>
+    <div class="heartWrap">
+      <button class="heartBtn" id="heartBtnMobile"><span class="heartFill" id="heartFillMobile"></span>❤️</button>
+    </div>
   </div>
 </div>
 
@@ -286,6 +304,10 @@
     <div class="field"><label for="fName">Assignment name</label><input type="text" id="fName" placeholder="e.g. Fiscal Policy Essay"></div>
     <div class="field"><label for="fLink">Link (optional)</label><input type="url" id="fLink" placeholder="https://…"></div>
     <div class="field"><label for="fDate">Due date</label><input type="date" id="fDate"></div>
+    <div class="field" style="display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="fShared" checked style="width:auto;">
+      <label for="fShared" style="margin:0; text-transform:none; font-size:13px; letter-spacing:0;">Shared (separate status for each of you)</label>
+    </div>
     <div class="modal-actions"><button class="btn-secondary" id="cancelAdd">Cancel</button><button class="btn-primary" id="saveAdd">Save</button></div>
   </div>
 </div>
@@ -343,7 +365,7 @@
   document.getElementById('signOutLink').addEventListener('click', () => { localStorage.removeItem(SESSION_KEY); location.reload(); });
 
   // ===================== FIREBASE CONFIG =====================
-   const firebaseConfig = {
+     const firebaseConfig = {
   	apiKey: "AIzaSyDJ1EcFNKlxtF0MENvPiVwN0BWHug1d5yI",
   	authDomain: "bums-assignment-tracker.firebaseapp.com",
   	projectId: "bums-assignment-tracker",
@@ -352,7 +374,6 @@
   	appId: "1:314928097882:web:8442546507001fec264663",
   	measurementId: "G-K2W67B31MW"
 	};
-
 
   const PEOPLE = ['Jayce', 'Anna'];
   const DAY_TYPES = ['Odd', 'Even', 'Trad'];
@@ -627,13 +648,26 @@
       list.appendChild(card);
     });
   }
+  const STATUS_COLORS = {
+    'pending':        { bg: '#dfe1de', fg: '#4a4f4c' },
+    'in-progress':    { bg: '#f2cf6b', fg: '#5c4308' },
+    'missing':        { bg: '#e19a91', fg: '#6e1f14' },
+    'submitted':      { bg: '#9bd7ac', fg: '#12401f' },
+    'redo-pending':   { bg: '#c9b3ec', fg: '#3a1f66' },
+    'redo-available': { bg: '#3a1f66', fg: '#f0e8ff' }
+  };
+  function styleStatusSelect(sel, val) {
+    const c = STATUS_COLORS[val] || STATUS_COLORS.pending;
+    sel.style.background = c.bg; sel.style.color = c.fg; sel.style.borderColor = c.fg;
+  }
   function buildStatusSelect(currentVal, onChange) {
     const sel = document.createElement('select'); sel.className = 'statusSelect';
     Object.entries(STATUS_LABELS).forEach(([val, label]) => {
       const opt = document.createElement('option'); opt.value = val; opt.textContent = label;
       if (currentVal === val) opt.selected = true; sel.appendChild(opt);
     });
-    sel.onchange = () => onChange(sel.value);
+    styleStatusSelect(sel, currentVal);
+    sel.onchange = () => { styleStatusSelect(sel, sel.value); onChange(sel.value); };
     return sel;
   }
   function setStatus(a, newStatus, person) {
@@ -641,7 +675,19 @@
     const update = { [field]: newStatus };
     if (newStatus === 'redo-pending') update[(person ? 'redoUnlock' + person : 'redoUnlockAt')] = Date.now() + 24 * 3600 * 1000;
     assignmentsRef.doc(a.id).update(update);
-    if (newStatus === 'submitted' && typeof confetti === 'function') confetti({ particleCount: 120, spread: 70, origin: { y: 0.7 } });
+    if (newStatus === 'submitted') celebrate();
+  }
+  function celebrate() {
+    if (typeof confetti !== 'function') return;
+    const end = Date.now() + 1200;
+    const colors = ['#564a86', '#c1852c', '#2f746e', '#c14e72', '#9bd7ac'];
+    confetti({ particleCount: 150, spread: 100, origin: { y: 0.65 }, colors, startVelocity: 45 });
+    (function frame() {
+      confetti({ particleCount: 6, angle: 60, spread: 60, origin: { x: 0 }, colors });
+      confetti({ particleCount: 6, angle: 120, spread: 60, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+    confetti({ particleCount: 60, spread: 360, startVelocity: 30, origin: { y: 0.4 }, colors, scalar: 0.8, ticks: 100 });
   }
 
   // ===================== CLASS TABS / FILTER CHIPS =====================
@@ -726,12 +772,13 @@
     const dueDate = document.getElementById('fDate').value;
     if (!className || !name || !dueDate) { alert('Class, assignment name, and due date are required.'); return; }
     const fullName = unit ? `Unit ${unit}: ${name}` : name;
-    const shared = sharedClassNames().has(className);
+    const shared = document.getElementById('fShared').checked;
     const doc = { class: className, name: fullName, link: link || null, dueDate, addedBy: myName, shared, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
     if (shared) { doc.statusJayce = 'pending'; doc.statusAnna = 'pending'; } else { doc.status = 'pending'; }
     assignmentsRef.add(doc).then(() => {
       overlay.classList.remove('show');
       ['fUnit','fName','fLink','fDate'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('fShared').checked = true;
     }).catch(err => alert('Save failed: ' + err.message));
   };
   document.getElementById('statusFilter').onchange = render;
@@ -845,6 +892,45 @@
   document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatFrom(document.getElementById('chatInput')); } });
   document.getElementById('chatMiniSend').onclick = () => sendChatFrom(document.getElementById('chatMiniInput'));
   document.getElementById('chatMiniInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatFrom(document.getElementById('chatMiniInput')); } });
+
+  // ===================== HEART BUTTON =====================
+  const HEART_MESSAGES = [
+    "My bubba is the best bubba EVER 😍",
+    "Thanks for adding assignments bubba, I appreciate it 🥰",
+    "You da best for supporting my little nerd button bub 🥰",
+    "#bubbalockedin",
+    "#bubbadaGOAT 😛",
+    "My favorite bub, you such a hard worker for real",
+    "I #lovelovelove my tootie 🥰",
+    "I #want to squish your toot face",
+    "If you see this send me a yam emoji in the chat",
+    "pls let me know any features you want added",
+    "You're the cutest ever hardest working bum of all time 🥰",
+    "🥰🥰🥰🥰🥰🥰🥰🥰😛",
+    "I wish I could write you a million messages"
+  ];
+  function setupHeartButton(btn, fill) {
+    if (!btn || !fill) return;
+    let cooling = false;
+    btn.addEventListener('click', () => {
+      if (cooling) return;
+      cooling = true;
+      const msg = HEART_MESSAGES[Math.floor(Math.random() * HEART_MESSAGES.length)];
+      const bubble = document.createElement('div'); bubble.className = 'heartBubble'; bubble.textContent = msg;
+      btn.parentElement.appendChild(bubble);
+      setTimeout(() => bubble.remove(), 3000);
+
+      btn.disabled = true;
+      fill.style.transition = 'none'; fill.style.width = '0%';
+      requestAnimationFrame(() => { fill.style.transition = 'width 5s linear'; fill.style.width = '100%'; });
+      setTimeout(() => {
+        btn.disabled = false; cooling = false;
+        fill.style.transition = 'none'; fill.style.width = '0%';
+      }, 5000);
+    });
+  }
+  setupHeartButton(document.getElementById('heartBtnDesktop'), document.getElementById('heartFillDesktop'));
+  setupHeartButton(document.getElementById('heartBtnMobile'), document.getElementById('heartFillMobile'));
 
   // ===================== BOOT =====================
   const savedUser = localStorage.getItem(SESSION_KEY);
