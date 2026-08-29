@@ -30,11 +30,28 @@
   .daytype-btn:hover { border-color: var(--plum); }
   .todayGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 560px) { .todayGrid { grid-template-columns: 1fr; } }
+
+  /* Sidebar layout — desktop only, per request */
+  .assignGrid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
+  .scheduleSidebar { position: sticky; top: 16px; }
+  .scheduleSidebar .todayGrid { display: block; }
+  .scheduleSidebar .personCol { margin-bottom: 18px; }
+  @media (max-width: 900px) {
+    .assignGrid { display: block; }
+    .scheduleSidebar { display: none; }
+  }
   .personCol h3 { margin: 0 0 6px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
   .personCol.jayce h3 { color: var(--jayce); } .personCol.anna h3 { color: var(--anna); }
   .schedRow { display: flex; justify-content: space-between; font-size: 12.5px; padding: 3px 0; border-bottom: 1px dotted var(--line); }
   .schedRow .t { color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
   .schedEmpty { font-size: 12px; color: var(--ink-soft); font-style: italic; }
+  .currentClassBox { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; margin-bottom: 8px; }
+  .ccName { font-weight: 600; font-size: 13px; margin-bottom: 5px; }
+  .ccBarWrap { height: 7px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .ccBar { height: 100%; background: linear-gradient(90deg, var(--plum), #8a78c9); border-radius: 999px; transition: width 0.4s ease; }
+  .ccTimes { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-soft); margin-top: 3px; }
+  .nextUp { font-size: 12px; margin-bottom: 8px; }
+  .nextUp .t { color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; font-size: 11px; margin-left: 4px; }
 
   .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px; }
   .chiprow { display: flex; gap: 6px; margin-bottom: 8px; }
@@ -163,46 +180,53 @@
 
 <div id="assignmentsPanel">
 <div class="container">
+<div class="assignGrid">
 
-  <div class="todayCard">
-    <div class="todayHead">
-      <b>Today's schedule</b>
-      <button class="daytype-btn" id="dayTypeBtn"></button>
+  <div class="assignMain">
+    <div class="toolbar">
+      <div style="flex:1 1 100%;">
+        <div class="chiprow" id="classFilterChips">
+          <button data-mode="Jayce">Jayce's</button>
+          <button data-mode="Anna">Anna's</button>
+          <button data-mode="shared">Shared</button>
+        </div>
+        <div class="tabs" id="classTabs">
+          <button class="tab active" data-class="all">All</button>
+        </div>
+      </div>
+      <div class="right-controls">
+        <button class="manage-btn" id="openManageClasses">⚙ Classes</button>
+        <select id="statusFilter">
+          <option value="active">Active</option>
+          <option value="all">All</option>
+          <option value="submitted">Submitted</option>
+        </select>
+        <select id="sortOrder">
+          <option value="due-asc">Due date ↑</option>
+          <option value="due-desc">Due date ↓</option>
+          <option value="class">By class</option>
+        </select>
+        <button class="add-btn" id="openAdd">+ Add assignment</button>
+      </div>
     </div>
-    <div class="todayGrid">
-      <div class="personCol jayce"><h3>Jayce</h3><div id="todayJayce"></div></div>
-      <div class="personCol anna"><h3>Anna</h3><div id="todayAnna"></div></div>
-    </div>
+    <div class="list" id="list"></div>
+    <div class="empty" id="emptyState" style="display:none;">Nothing here — add an assignment above.</div>
   </div>
 
-  <div class="toolbar">
-    <div style="flex:1 1 100%;">
-      <div class="chiprow" id="classFilterChips">
-        <button data-mode="shared" class="active">Shared</button>
-        <button data-mode="Jayce">Jayce's</button>
-        <button data-mode="Anna">Anna's</button>
+  <aside class="scheduleSidebar">
+    <div class="todayCard">
+      <div class="todayHead">
+        <b>Today</b>
+        <button class="daytype-btn" id="dayTypeBtn"></button>
       </div>
-      <div class="tabs" id="classTabs">
-        <button class="tab active" data-class="all">All</button>
+      <div class="todayGrid">
+        <div class="personCol jayce"><h3>Jayce</h3><div id="todayJayce"></div></div>
+        <div class="personCol anna"><h3>Anna</h3><div id="todayAnna"></div></div>
       </div>
     </div>
-    <div class="right-controls">
-      <button class="manage-btn" id="openManageClasses">⚙ Classes</button>
-      <select id="statusFilter">
-        <option value="active">Active</option>
-        <option value="all">All</option>
-        <option value="submitted">Submitted</option>
-      </select>
-      <select id="sortOrder">
-        <option value="due-asc">Due date ↑</option>
-        <option value="due-desc">Due date ↓</option>
-        <option value="class">By class</option>
-      </select>
-      <button class="add-btn" id="openAdd">+ Add assignment</button>
-    </div>
-  </div>
-  <div class="list" id="list"></div>
-  <div class="empty" id="emptyState" style="display:none;">Nothing here — add an assignment above.</div>
+  </aside>
+
+</div>
 </div>
 </div>
 
@@ -266,8 +290,8 @@
 <script>
   // ===================== PASSWORD GATE / IDENTITY =====================
   const PASSWORDS = {
-    "20324a63e844d220158c27120fd3653ed70612d5f31d7d724c9bcddbfb9e4f20": "Jayce",  // "bubbadookie"
-    "3f05b6ef78414299553ccca89f2b87d15b78cd43dc1c7f9dab127cfc4ed7a74d": "Anna"    // "tootiefrootie"
+    "9f872b307cb970956f784bc2925299e206e4f9179131942657d17f7a3c1e3012": "Jayce",  // "jaycebum"
+    "1ac57ad2476e8a3ae00f066812508296125dfa7ed7127f3ac3f95cfc5ecc97d5": "Anna"    // "annabum"
   };
   const SESSION_KEY = "ledger_user";
   async function sha256Hex(str) {
@@ -279,6 +303,8 @@
     document.getElementById('loginGate').style.display = 'none';
     document.getElementById('appShell').style.display = 'block';
     document.getElementById('whoAmI').textContent = myName;
+    classFilterMode = myName; // default to your own individual classes, not the shared set
+    syncFilterChipsUI();
     initApp();
   }
   document.getElementById('pwForm').addEventListener('submit', async (e) => {
@@ -299,8 +325,12 @@
 
   // ===================== FIREBASE CONFIG =====================
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY", authDomain: "YOUR_PROJECT.firebaseapp.com", projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.appspot.com", messagingSenderId: "YOUR_SENDER_ID", appId: "YOUR_APP_ID"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
   };
 
   const PEOPLE = ['Jayce', 'Anna'];
@@ -325,13 +355,24 @@
     return 'Trad';
   }
   function todayStr() { return new Date().toISOString().slice(0,10); }
+  function minsSinceMidnight(hhmm) { const [h,m] = hhmm.split(':').map(Number); return h*60+m; }
+  function formatTime12(hhmm) {
+    const [h,m] = hhmm.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM'; let hh = h % 12; if (hh === 0) hh = 12;
+    return `${hh}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+  function sortedPeriods(doc) { return doc && doc.periods ? [...doc.periods].sort((a,b) => minsSinceMidnight(a.start) - minsSinceMidnight(b.start)) : []; }
 
   let db, assignmentsRef, classesRef, messagesRef, linksRef, schedulesRef, overridesRef;
   const connStatus = document.getElementById('connStatusText');
   let assignments = [], classes = [], messages = [], links = [];
   let schedules = {}; // key: `${person}_${dayType}` -> {periods:[{time,className}]}
   let todayOverride = null; // dayType string or null
-  let classFilterMode = 'shared';
+  let classFilterMode = 'shared'; // overwritten to the signed-in person's own name once they log in
+
+  function syncFilterChipsUI() {
+    document.querySelectorAll('#classFilterChips button').forEach(b => b.classList.toggle('active', b.dataset.mode === classFilterMode));
+  }
 
   function initApp() {
     firebase.initializeApp(firebaseConfig);
@@ -362,25 +403,30 @@
     messagesRef.orderBy('timestamp', 'desc').limit(200).onSnapshot((snap) => {
       messages = snap.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
       renderChat();
+    }, (err) => {
+      console.error('Chat listener error:', err);
+      document.getElementById('chatMessages').innerHTML =
+        '<div class="empty">Chat isn\'t connecting — likely the Firestore rules don\'t cover the "messages" collection yet. Console error: ' + err.message + '</div>';
     });
 
     linksRef.orderBy('createdAt', 'desc').onSnapshot((snap) => {
       links = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderLinks();
-    });
+    }, (err) => console.error('Links listener error:', err));
 
     schedulesRef.onSnapshot((snap) => {
       schedules = {};
       snap.docs.forEach(d => { schedules[d.id] = d.data(); });
       renderScheduleEditor(); renderClassTabs(); renderTodayWidget(); render();
-    });
+    }, (err) => console.error('Schedules listener error:', err));
 
     overridesRef.doc(todayStr()).onSnapshot((doc) => {
       todayOverride = doc.exists ? doc.data().dayType : null;
       renderTodayWidget();
-    });
+    }, (err) => console.error('Day-override listener error:', err));
 
     setInterval(checkAutoTransitions, 60000);
+    setInterval(renderTodayWidget, 30000); // keeps the progress bar advancing without waiting for a data change
   }
 
   // ===================== AUTO STATUS TRANSITIONS =====================
@@ -435,18 +481,48 @@
     const dt = currentDayType();
     const info = BLOCK_INFO[dt];
     document.getElementById('dayTypeBtn').textContent = `${dt} Block — ${info.days} · ${info.start}–${info.end} (click to change)`;
-    ['Jayce','Anna'].forEach(p => {
-      const el = document.getElementById('today' + p);
-      const doc = schedules[`${p}_${dt}`];
-      el.innerHTML = '';
-      if (!doc || !doc.periods || doc.periods.length === 0) {
-        el.innerHTML = '<div class="schedEmpty">No schedule added yet.</div>'; return;
-      }
-      doc.periods.forEach(per => {
-        const row = document.createElement('div'); row.className = 'schedRow';
-        row.innerHTML = `<span>${per.className}</span><span class="t">${per.time}</span>`;
-        el.appendChild(row);
-      });
+    PEOPLE.forEach(p => renderPersonToday(p, dt));
+  }
+
+  function renderPersonToday(person, dt) {
+    const el = document.getElementById('today' + person);
+    const doc = schedules[`${person}_${dt}`];
+    el.innerHTML = '';
+    const periods = sortedPeriods(doc);
+    if (periods.length === 0) { el.innerHTML = '<div class="schedEmpty">No schedule added yet.</div>'; return; }
+
+    const now = new Date(); const nowMin = now.getHours() * 60 + now.getMinutes();
+    let current = null, next = null;
+    for (const per of periods) {
+      const s = minsSinceMidnight(per.start), e = minsSinceMidnight(per.end);
+      if (nowMin >= s && nowMin < e) current = per;
+      if (!next && s > nowMin) next = per;
+    }
+
+    if (current) {
+      const s = minsSinceMidnight(current.start), e = minsSinceMidnight(current.end);
+      const pct = Math.min(100, Math.max(0, Math.round((nowMin - s) / (e - s) * 100)));
+      const box = document.createElement('div'); box.className = 'currentClassBox';
+      box.innerHTML = `<div class="ccName">${current.className}${current.teacher ? ' · ' + current.teacher : ''}</div>
+        <div class="ccBarWrap"><div class="ccBar" style="width:${pct}%"></div></div>
+        <div class="ccTimes"><span>${formatTime12(current.start)}</span><span>${pct}%</span><span>${formatTime12(current.end)}</span></div>`;
+      el.appendChild(box);
+    } else {
+      const msg = document.createElement('div'); msg.className = 'schedEmpty';
+      msg.textContent = nowMin < minsSinceMidnight(periods[0].start) ? "School hasn't started yet." : (next ? 'Between classes.' : 'No more classes today.');
+      el.appendChild(msg);
+    }
+
+    const nextBox = document.createElement('div'); nextBox.className = 'nextUp';
+    nextBox.innerHTML = next
+      ? `<b>Next up:</b> ${next.className}${next.teacher ? ' · ' + next.teacher : ''}<span class="t">${formatTime12(next.start)}</span>`
+      : `<b>Next up:</b> —`;
+    el.appendChild(nextBox);
+
+    periods.forEach(per => {
+      const row = document.createElement('div'); row.className = 'schedRow';
+      row.innerHTML = `<span>${per.className}${per.teacher ? ' <span class="t">(' + per.teacher + ')</span>' : ''}</span><span class="t">${formatTime12(per.start)}–${formatTime12(per.end)}</span>`;
+      el.appendChild(row);
     });
   }
   document.getElementById('dayTypeBtn').onclick = () => {
@@ -651,9 +727,10 @@
       const info = BLOCK_INFO[dt];
       block.innerHTML = `<h3>${dt} Block</h3><p class="blockInfo">${info.days} · ${info.start}–${info.end}</p>`;
       const rowsWrap = document.createElement('div');
-      doc.periods.forEach((per, idx) => {
+      sortedPeriods(doc).forEach((per) => {
+        const idx = doc.periods.indexOf(per);
         const row = document.createElement('div'); row.className = 'sedRow';
-        row.innerHTML = `<span>${per.time}</span><span>${per.className}</span>`;
+        row.innerHTML = `<span>${formatTime12(per.start)}–${formatTime12(per.end)}</span><span>${per.className}${per.teacher ? ' · ' + per.teacher : ''}</span>`;
         const rm = document.createElement('button'); rm.className = 'manage-btn'; rm.textContent = '✕';
         rm.onclick = () => {
           const newPeriods = doc.periods.filter((_, i) => i !== idx);
@@ -663,16 +740,19 @@
       });
       block.appendChild(rowsWrap);
       const addRow = document.createElement('div'); addRow.className = 'sedAdd';
-      const timeInput = document.createElement('input'); timeInput.placeholder = 'Time (e.g. 8:20–9:05)';
+      addRow.style.gridTemplateColumns = 'auto auto 1.5fr 1fr auto';
+      const startInput = document.createElement('input'); startInput.type = 'time';
+      const endInput = document.createElement('input'); endInput.type = 'time';
       const classInput = document.createElement('input'); classInput.placeholder = 'Class name';
+      const teacherInput = document.createElement('input'); teacherInput.placeholder = 'Teacher (optional)';
       const addBtn = document.createElement('button'); addBtn.className = 'add-btn'; addBtn.textContent = '+';
       addBtn.onclick = () => {
-        if (!timeInput.value.trim() || !classInput.value.trim()) return;
-        const newPeriods = [...doc.periods, { time: timeInput.value.trim(), className: classInput.value.trim() }];
+        if (!startInput.value || !endInput.value || !classInput.value.trim()) return;
+        const newPeriods = [...doc.periods, { start: startInput.value, end: endInput.value, className: classInput.value.trim(), teacher: teacherInput.value.trim() }];
         schedulesRef.doc(key).set({ person: myName, dayType: dt, periods: newPeriods });
-        timeInput.value = ''; classInput.value = '';
+        startInput.value = ''; endInput.value = ''; classInput.value = ''; teacherInput.value = '';
       };
-      addRow.appendChild(timeInput); addRow.appendChild(classInput); addRow.appendChild(addBtn);
+      addRow.appendChild(startInput); addRow.appendChild(endInput); addRow.appendChild(classInput); addRow.appendChild(teacherInput); addRow.appendChild(addBtn);
       block.appendChild(addRow); wrap.appendChild(block);
     });
   }
@@ -714,7 +794,8 @@
   function sendChat() {
     const input = document.getElementById('chatInput'); const text = input.value.trim();
     if (!text) return; input.value = '';
-    messagesRef.add({ sender: myName, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+    messagesRef.add({ sender: myName, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
+      .catch(err => alert('Message failed to send: ' + err.message));
   }
   document.getElementById('chatSend').onclick = sendChat;
   document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
