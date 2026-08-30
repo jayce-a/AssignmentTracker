@@ -32,12 +32,15 @@
   .todayGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 560px) { .todayGrid { grid-template-columns: 1fr; } }
 
-  /* Sidebar layout — desktop only, per request */
-  .assignGrid { display: grid; grid-template-columns: 260px 1fr 280px; gap: 20px; align-items: start; }
-  .scheduleSidebar { position: sticky; top: 16px; }
+  /* Sidebar layout — desktop only, per request. Sidebars are locked in place (fixed
+     height matching the grid row) with their own internal scroll; only the assignment
+     list in the middle scrolls with the page. */
+  .assignGrid { display: grid; grid-template-columns: 260px 1fr 280px; gap: 20px; align-items: start; height: calc(100vh - 230px); min-height: 460px; }
+  .scheduleSidebar { height: 100%; overflow-y: auto; padding-right: 2px; }
   .scheduleSidebar .todayGrid { display: block; }
   .scheduleSidebar .personCol { margin-bottom: 18px; }
-  .chatSidebar { position: sticky; top: 16px; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; height: 70vh; }
+  .assignMain { height: 100%; overflow-y: auto; padding-right: 2px; }
+  .chatSidebar { height: 100%; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; }
   .chatSidebar b { font-size: 13px; }
   .chatMiniMessages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding: 8px 0; }
   .chatMiniMessages .bubble { font-size: 12px; padding: 6px 10px; }
@@ -46,7 +49,8 @@
   .chatMiniInputBar textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 14px; padding: 6px 10px; font-size: 12px; font-family: inherit; max-height: 56px; }
   .chatMiniInputBar button { border: none; background: var(--plum); color: #fff; border-radius: 50%; width: 30px; height: 30px; font-size: 13px; cursor: pointer; flex-shrink: 0; }
   @media (max-width: 1150px) {
-    .assignGrid { display: block; }
+    .assignGrid { display: block; height: auto; min-height: 0; }
+    .assignMain { height: auto; overflow: visible; }
     .scheduleSidebar { display: none; }
     .chatSidebar { display: none; }
   }
@@ -115,10 +119,14 @@
   .classRow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
   .classRow .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
   .classRow .cname { flex: 1; font-size: 13px; }
+  .classRow select.ownerSelect { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; }
   .classRow button { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; cursor: pointer; }
   .swatchPicker { display: flex; gap: 6px; flex-wrap: wrap; }
   .swatchPicker button { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
   .swatchPicker button.picked { border-color: var(--ink); }
+  .ownerPicker { display: flex; gap: 6px; }
+  .ownerPicker button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--ink-soft); }
+  .ownerPicker button.picked { background: var(--ink); color: #fff; border-color: var(--ink); }
 
   #connStatus { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
 
@@ -180,7 +188,7 @@
   .hourTime { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); flex: 1; }
   .hourTimeEdit { display: flex; gap: 6px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
   .hourTimeEdit input { padding: 5px 8px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 12px; font-family: inherit; }
-  .hourFields { display: grid; grid-template-columns: 1.3fr 1fr auto; gap: 8px; align-items: center; }
+  .hourFields { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; align-items: center; }
   .hourFields input { padding: 7px 9px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; font-family: inherit; }
   .trackLabel { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ink-soft); white-space: nowrap; cursor: pointer; }
   .lunchPicker { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; font-size: 11.5px; color: var(--ink-soft); }
@@ -280,7 +288,7 @@
 
 <div id="schedulePanel">
   <div class="container">
-    <p style="color:var(--ink-soft); font-size:13px;">Editing your own schedule — sign in as the other person to edit theirs. Fill in your class for each preset hour; times are pre-filled but each hour has its own "Edit time" for one-off variances (e.g. marching band starting before 1st hour officially does). Check "Add Tracker" on the hours you actually want tracked as classes — leave it off for study halls or anything you don't want cluttering the assignment tabs.</p>
+    <p style="color:var(--ink-soft); font-size:13px;">Editing your own schedule — sign in as the other person to edit theirs. Fill in your class for each preset hour; times are pre-filled but each hour has its own "Edit time" for one-off variances (e.g. marching band starting before 1st hour officially does). This is just your day-to-day schedule — it's separate from the assignment tracker's class list, which you manage yourself under "⚙ Classes." Fill in your Trad (Friday) day first, then use "Fill from Trad" on the Odd/Even blocks to copy those classes into the matching odd/even hours. Add clubs, practices, or other one-off or recurring things below.</p>
     <div id="scheduleEditor"></div>
   </div>
 </div>
@@ -315,7 +323,7 @@
 <div class="overlay" id="overlayImport">
   <div class="modal" style="max-width:620px;">
     <h2>Import assignments</h2>
-    <p style="font-size:12.5px; color:var(--ink-soft); margin:0;">Paste rows copied straight from a spreadsheet (tab-separated), one assignment per line:<br><code>Class&nbsp;&nbsp;Name&nbsp;&nbsp;Due Date&nbsp;&nbsp;Link&nbsp;&nbsp;Jayce Status&nbsp;&nbsp;Anna Status</code><br>Due date can be "9/15", "9/15/2026", or "2026-09-15". Status columns are optional and accept plain words (Pending, In Progress, Missing, Submitted, Redo) — blank defaults to Pending. The class must already exist (spelled exactly) in "⚙ Classes" or a schedule.</p>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin:0;">Paste rows copied straight from a spreadsheet (tab-separated), one assignment per line:<br><code>Class&nbsp;&nbsp;Name&nbsp;&nbsp;Due Date&nbsp;&nbsp;Link&nbsp;&nbsp;Jayce Status&nbsp;&nbsp;Anna Status</code><br>Due date can be "9/15", "9/15/2026", or "2026-09-15". Status columns are optional and accept plain words (Pending, In Progress, Missing, Submitted, Redo) — blank defaults to Pending. The class must already exist (spelled exactly) in "⚙ Classes".</p>
     <textarea id="importText" rows="10" style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:8px; border:1px solid var(--line); border-radius:var(--radius);" placeholder="AP Macro	Unit 3 Essay	9/15	https://...	In Progress	Submitted&#10;APUSH	Chapter 12 Reading Notes	9/10"></textarea>
     <div class="modal-actions"><button class="btn-secondary" id="cancelImport">Cancel</button><button class="btn-primary" id="runImport">Import</button></div>
   </div>
@@ -327,6 +335,7 @@
     <h2>Classes</h2>
     <div id="classList"></div>
     <div class="field"><label for="newClassName">Add a class</label><input type="text" id="newClassName" placeholder="e.g. AP Lit"></div>
+    <div class="field"><label>Whose class</label><div class="ownerPicker" id="ownerPicker"></div></div>
     <div class="swatchPicker" id="swatchPicker"></div>
     <div class="modal-actions"><button class="btn-secondary" id="closeManageClasses">Close</button><button class="btn-primary" id="addClassBtn">Add class</button></div>
   </div>
@@ -384,7 +393,6 @@
   	appId: "1:314928097882:web:8442546507001fec264663",
   	measurementId: "G-K2W67B31MW"
 	};
-
 
   const PEOPLE = ['Jayce', 'Anna'];
   const DAY_TYPES = ['Odd', 'Even', 'Trad'];
@@ -454,24 +462,23 @@
         const fb = slotsDoc[slot.teacherFallbackFrom];
         if (fb && fb.teacher) teacher = fb.teacher.trim();
       }
-      const track = s.track === true;
 
       if (slot.lunchGroup) {
         const lunchNum = lunchDoc[lunchGroupKey(dayType)];
         const lt = lunchNum ? LUNCH_TIMES[dayType][lunchNum] : null;
         if (className) {
           if (lt) {
-            if (start < lt.start) periods.push({ start, end: lt.start, className, teacher, track });
-            periods.push({ start: lt.start, end: lt.end, className: LUNCH_LABELS[lunchNum], teacher: '', track: false });
-            if (lt.end < end) periods.push({ start: lt.end, end, className, teacher, track });
+            if (start < lt.start) periods.push({ start, end: lt.start, className, teacher });
+            periods.push({ start: lt.start, end: lt.end, className: LUNCH_LABELS[lunchNum], teacher: '' });
+            if (lt.end < end) periods.push({ start: lt.end, end, className, teacher });
           } else {
-            periods.push({ start, end, className, teacher, track }); // no lunch picked yet -> show whole hour as one block
+            periods.push({ start, end, className, teacher }); // no lunch picked yet -> show whole hour as one block
           }
         } else if (lt) {
-          periods.push({ start: lt.start, end: lt.end, className: LUNCH_LABELS[lunchNum], teacher: '', track: false });
+          periods.push({ start: lt.start, end: lt.end, className: LUNCH_LABELS[lunchNum], teacher: '' });
         }
       } else if (className) {
-        periods.push({ start, end, className, teacher, track });
+        periods.push({ start, end, className, teacher });
       }
     });
     return periods;
@@ -486,7 +493,7 @@
     if (d === 1 || d === 3) return 'Odd';
     if (d === 2 || d === 4) return 'Even';
     if (d === 5) return 'Trad';
-    return 'Trad';
+    return null; // weekend — no school by default
   }
   function todayStr() { return new Date().toISOString().slice(0,10); }
   function minsSinceMidnight(hhmm) { const [h,m] = hhmm.split(':').map(Number); return h*60+m; }
@@ -571,7 +578,6 @@
     classesRef.onSnapshot((snap) => {
       classes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderClassManager(); renderAddClassOptions(); renderClassTabs(); render();
-      syncClassesFromSchedules();
     }, (err) => {
       console.error('Classes listener error:', err);
       alert('Classes aren\'t loading: ' + err.message);
@@ -595,8 +601,7 @@
     schedulesRef.onSnapshot((snap) => {
       schedules = {};
       snap.docs.forEach(d => { schedules[d.id] = d.data(); });
-      renderScheduleEditor(); renderClassTabs(); renderTodayWidget(); render();
-      syncClassesFromSchedules();
+      renderScheduleEditor(); renderTodayWidget(); render();
     }, (err) => console.error('Schedules listener error:', err));
 
     overridesRef.doc(todayStr()).onSnapshot((doc) => {
@@ -627,7 +632,7 @@
     });
   }
 
-  function classInfo(className) { return classes.find(c => c.name === className) || { colorHex: '#8a8f8c', name: className }; }
+  function classInfo(className) { return classes.find(c => c.name === className) || { colorHex: '#8a8f8c', name: className, owner: 'shared' }; }
   function isFullySubmitted(a) { return a.shared ? (a.statusJayce === 'submitted' && a.statusAnna === 'submitted') : a.status === 'submitted'; }
 
   function formatStamp(a) {
@@ -642,40 +647,24 @@
     return { text: `${label} · ${diffDays}d`, cls: '' };
   }
 
-  // ===================== SCHEDULE HELPERS / SHARED CLASSES =====================
-  function scheduleClassNames(person) {
-    const names = new Set();
-    DAY_TYPES.forEach(dt => {
-      computePeriodsForDayType(person, dt).forEach(p => {
-        if (p.className && p.track) names.add(p.className.trim());
-      });
-    });
-    return names;
+  // ===================== CLASSES (manual — fully independent of the schedule) =====================
+  // Classes are added/removed/archived by hand under "⚙ Classes" and each is tagged with an
+  // `owner`: 'shared', 'Jayce', or 'Anna'. Nothing here reads from the schedule at all.
+  function classOwner(className) { return classInfo(className).owner || 'shared'; }
+
+  // currentDayType() returns null on weekends when there's no override — meaning "no school".
+  // An override of the literal string 'None' forces "no school" even on a weekday (e.g. a holiday).
+  function currentDayType() {
+    if (todayOverride) return todayOverride === 'None' ? null : todayOverride;
+    return defaultDayType(new Date());
   }
-  function sharedClassNames() {
-    const j = scheduleClassNames('Jayce'), a = scheduleClassNames('Anna');
-    return new Set([...j].filter(n => a.has(n)));
-  }
-  function currentDayType() { return todayOverride || defaultDayType(new Date()); }
 
   function nextAvailableColor() {
     const used = new Set(classes.map(c => c.colorHex));
     const free = CLASS_COLORS.find(c => !used.has(c.hex));
     return (free || CLASS_COLORS[classes.length % CLASS_COLORS.length]).hex;
   }
-  const pendingClassCreates = new Set(); // guards against double-creating the same class while a write is in flight
   function nextOrder() { return classes.reduce((max, c) => Math.max(max, c.order ?? 0), 0) + 1; }
-  function syncClassesFromSchedules() {
-    const allScheduleNames = new Set([...scheduleClassNames('Jayce'), ...scheduleClassNames('Anna')]);
-    const existingNames = new Set(classes.map(c => c.name));
-    allScheduleNames.forEach(name => {
-      if (existingNames.has(name) || pendingClassCreates.has(name)) return;
-      pendingClassCreates.add(name);
-      classesRef.add({ name, colorHex: nextAvailableColor(), archived: false, order: nextOrder() })
-        .catch(err => console.error('Auto-create class failed:', err))
-        .finally(() => pendingClassCreates.delete(name));
-    });
-  }
 
   const currentPeriodSec = { Jayce: null, Anna: null }; // {start,end,color} in seconds-since-midnight, or null
   function formatHMS(totalSec) {
@@ -699,17 +688,38 @@
 
   function renderTodayWidget() {
     const dt = currentDayType();
-    const info = BLOCK_INFO[dt];
-    document.getElementById('dayTypeBtn').textContent = `${dt} Block — ${info.days} · ${info.start}–${info.end} (click to change)`;
+    const btn = document.getElementById('dayTypeBtn');
+    if (dt) {
+      const info = BLOCK_INFO[dt];
+      btn.textContent = `${dt} Block — ${info.days} · ${info.start}–${info.end} (click to change)`;
+    } else {
+      btn.textContent = 'No school today (click to set a day type)';
+    }
     PEOPLE.forEach(p => renderPersonToday(p, dt));
+  }
+
+  // ---- Extra / recurring events (clubs, practices, appointments — layered on top of the block schedule) ----
+  function personExtras(person) {
+    const doc = schedules[`${person}_extras`] || {};
+    return Array.isArray(doc.events) ? doc.events : [];
+  }
+  function extrasForDate(person, dateObj) {
+    const wd = dateObj.getDay();
+    const dstr = dateObj.toISOString().slice(0, 10);
+    return personExtras(person).filter(ev => ev.recurring ? (ev.days || []).includes(wd) : ev.date === dstr);
   }
 
   function renderPersonToday(person, dt) {
     const el = document.getElementById('today' + person);
     el.innerHTML = '';
     currentPeriodSec[person] = null;
-    const periods = sortedPeriods(computePeriodsForDayType(person, dt));
-    if (periods.length === 0) { el.innerHTML = '<div class="schedEmpty">No schedule added yet.</div>'; return; }
+    const base = dt ? computePeriodsForDayType(person, dt) : [];
+    const extras = extrasForDate(person, new Date()).map(ev => ({ start: ev.start, end: ev.end, className: ev.title, teacher: '' }));
+    const periods = sortedPeriods([...base, ...extras]);
+    if (periods.length === 0) {
+      el.innerHTML = `<div class="schedEmpty">${dt ? 'No schedule added yet.' : 'No school today.'}</div>`;
+      return;
+    }
 
     const now = new Date(); const nowMin = now.getHours() * 60 + now.getMinutes();
     let current = null, next = null;
@@ -750,8 +760,11 @@
     });
   }
   document.getElementById('dayTypeBtn').onclick = () => {
-    const cur = currentDayType();
-    const next = DAY_TYPES[(DAY_TYPES.indexOf(cur) + 1) % DAY_TYPES.length];
+    // Cycle Odd -> Even -> Trad -> None(no school) -> Odd... lets you force a day type on a
+    // weekend (e.g. makeup Saturday) or force "no school" on a weekday (e.g. a holiday).
+    const cycle = [...DAY_TYPES, 'None'];
+    const cur = todayOverride || defaultDayType(new Date()) || 'None';
+    const next = cycle[(cycle.indexOf(cur) + 1) % cycle.length];
     overridesRef.doc(todayStr()).set({ dayType: next });
   };
 
@@ -870,11 +883,6 @@
       btn.classList.add('active'); classFilterMode = btn.dataset.mode; renderClassTabs(); render();
     };
   });
-  function outOfSchoolClassNames() {
-    // classes that don't belong to either person's schedule at all (manually added extras)
-    const all = new Set([...scheduleClassNames('Jayce'), ...scheduleClassNames('Anna')]);
-    return classes.filter(c => !c.archived && !all.has(c.name)).map(c => c.name);
-  }
   function renderClassTabs() {
     const wrap = document.getElementById('classTabs');
     wrap.innerHTML = '';
@@ -882,24 +890,14 @@
     allBtn.dataset.class = 'all'; allBtn.textContent = 'All'; allBtn.onclick = () => selectTab('all');
     wrap.appendChild(allBtn);
 
-    const shared = sharedClassNames();
-    const allScheduleNames = new Set([...scheduleClassNames('Jayce'), ...scheduleClassNames('Anna')]);
-    const extras = outOfSchoolClassNames();
-    let primaryNames, dropdownNames = [];
-
-    if (allScheduleNames.size === 0) {
-      // truly no schedule data from either person yet -> nothing to filter by, show everything
-      primaryNames = classes.filter(c => !c.archived).map(c => c.name);
-    } else if (classFilterMode === 'shared') {
-      primaryNames = [...shared, ...extras];
-    } else {
-      const personSet = scheduleClassNames(classFilterMode);
-      primaryNames = [...personSet].filter(n => shared.has(n)).concat(extras);
-      dropdownNames = [...personSet].filter(n => !shared.has(n));
-    }
-
-    const primaryDocs = classes.filter(c => !c.archived && primaryNames.includes(c.name))
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    // Which classes show as tabs depends purely on each class's manually-set owner —
+    // 'Shared' shows only shared classes; 'Jayce'/'Anna' shows that person's classes plus shared ones.
+    const primaryDocs = classes.filter(c => {
+      if (c.archived) return false;
+      const owner = c.owner || 'shared';
+      if (classFilterMode === 'shared') return owner === 'shared';
+      return owner === 'shared' || owner === classFilterMode;
+    }).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     let dragSrcName = null;
     primaryDocs.forEach(c => {
@@ -923,24 +921,10 @@
       };
       wrap.appendChild(btn);
     });
-
-    if (dropdownNames.length > 0) {
-      const sel = document.createElement('select'); sel.id = 'classMoreSelect'; sel.className = 'tab';
-      sel.style.cursor = 'pointer';
-      const isActiveInDropdown = dropdownNames.includes(activeClassFilter);
-      const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = `More classes (${dropdownNames.length}) ▾`;
-      sel.appendChild(placeholder);
-      dropdownNames.forEach(n => { const opt = document.createElement('option'); opt.value = n; opt.textContent = n; if (n === activeClassFilter) opt.selected = true; sel.appendChild(opt); });
-      if (isActiveInDropdown) sel.classList.add('active');
-      sel.onchange = () => { if (sel.value) selectTab(sel.value); };
-      wrap.appendChild(sel);
-    }
   }
   function selectTab(name) {
     activeClassFilter = name;
     document.querySelectorAll('#classTabs .tab').forEach(t => t.classList.toggle('active', t.dataset.class === name));
-    const more = document.getElementById('classMoreSelect');
-    if (more) more.classList.toggle('active', more.value === name && name !== '');
     render();
   }
   function renderAddClassOptions() {
@@ -949,17 +933,28 @@
     if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
   }
 
-  // ===================== MANAGE CLASSES =====================
+  // ===================== MANAGE CLASSES (fully manual: add / remove / archive / owner) =====================
   let pickedColor = CLASS_COLORS[0].hex;
+  let pickedOwner = 'shared';
+  const OWNER_OPTIONS = [{ v: 'shared', l: 'Shared' }, { v: 'Jayce', l: "Jayce's" }, { v: 'Anna', l: "Anna's" }];
   function renderClassManager() {
     const wrap = document.getElementById('classList'); wrap.innerHTML = '';
     classes.forEach(c => {
       const row = document.createElement('div'); row.className = 'classRow';
       const sw = document.createElement('div'); sw.className = 'swatch'; sw.style.background = c.colorHex;
       const name = document.createElement('div'); name.className = 'cname'; name.textContent = c.name + (c.archived ? ' (archived)' : '');
+      const ownerSel = document.createElement('select'); ownerSel.className = 'ownerSelect';
+      OWNER_OPTIONS.forEach(o => {
+        const opt = document.createElement('option'); opt.value = o.v; opt.textContent = o.l;
+        if ((c.owner || 'shared') === o.v) opt.selected = true;
+        ownerSel.appendChild(opt);
+      });
+      ownerSel.onchange = () => classesRef.doc(c.id).update({ owner: ownerSel.value }).catch(err => alert('Could not update class: ' + err.message));
       const btn = document.createElement('button'); btn.textContent = c.archived ? 'Restore' : 'Archive';
       btn.onclick = () => classesRef.doc(c.id).update({ archived: !c.archived }).catch(err => alert('Could not update class: ' + err.message));
-      row.appendChild(sw); row.appendChild(name); row.appendChild(btn); wrap.appendChild(row);
+      const del = document.createElement('button'); del.textContent = '✕'; del.title = 'Delete permanently';
+      del.onclick = () => { if (confirm(`Permanently delete "${c.name}"? This won't delete any assignments already using it.`)) classesRef.doc(c.id).delete().catch(err => alert('Could not delete class: ' + err.message)); };
+      row.appendChild(sw); row.appendChild(name); row.appendChild(ownerSel); row.appendChild(btn); row.appendChild(del); wrap.appendChild(row);
     });
   }
   function renderSwatchPicker() {
@@ -971,12 +966,21 @@
       wrap.appendChild(b);
     });
   }
-  document.getElementById('openManageClasses').onclick = () => { renderClassManager(); renderSwatchPicker(); document.getElementById('overlayClasses').classList.add('show'); };
+  function renderOwnerPicker() {
+    const wrap = document.getElementById('ownerPicker'); wrap.innerHTML = '';
+    OWNER_OPTIONS.forEach(o => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = o.l;
+      if (pickedOwner === o.v) b.classList.add('picked');
+      b.onclick = () => { pickedOwner = o.v; renderOwnerPicker(); };
+      wrap.appendChild(b);
+    });
+  }
+  document.getElementById('openManageClasses').onclick = () => { renderClassManager(); renderSwatchPicker(); renderOwnerPicker(); document.getElementById('overlayClasses').classList.add('show'); };
   document.getElementById('closeManageClasses').onclick = () => document.getElementById('overlayClasses').classList.remove('show');
   document.getElementById('addClassBtn').onclick = () => {
     const nameInput = document.getElementById('newClassName'); const name = nameInput.value.trim();
     if (!name) return;
-    classesRef.add({ name, colorHex: pickedColor, archived: false, order: nextOrder() })
+    classesRef.add({ name, colorHex: pickedColor, owner: pickedOwner, archived: false, order: nextOrder() })
       .then(() => { nameInput.value = ''; })
       .catch(err => alert('Could not add class: ' + err.message));
   };
@@ -994,7 +998,7 @@
     const dueDate = document.getElementById('fDate').value;
     if (!className || !name || !dueDate) { alert('Class, assignment name, and due date are required.'); return; }
     const fullName = unit ? `Unit ${unit}: ${name}` : name;
-    const shared = sharedClassNames().has(className);
+    const shared = classOwner(className) === 'shared';
     const doc = { class: className, name: fullName, link: link || null, dueDate, addedBy: myName, shared, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
     if (shared) { doc.statusJayce = 'pending'; doc.statusAnna = 'pending'; } else { doc.status = 'pending'; }
     assignmentsRef.add(doc).then(() => {
@@ -1022,7 +1026,7 @@
       if (!knownClasses.has(className)) { errors.push(`Skipped (unknown class "${className}"): "${line}"`); continue; }
       const dueDate = parseDateFlexible(dueDateRaw);
       if (!dueDate) { errors.push(`Skipped (bad date "${dueDateRaw}"): "${line}"`); continue; }
-      const shared = sharedClassNames().has(className);
+      const shared = classOwner(className) === 'shared';
       const doc = { class: className, name, link: link || null, dueDate, addedBy: myName, shared, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
       if (shared) {
         doc.statusJayce = normalizeStatus(jayceStatusRaw);
@@ -1054,6 +1058,10 @@
   });
 
   // ===================== SCHEDULE EDITOR (preset hours) =====================
+  // Odd hours 1/3/5/7 and Even hours 2/4/6 map onto the matching numbered hour in the Trad
+  // schedule, since Trad already lists every hour 1–7 in one place.
+  const FILL_FROM_TRAD_KEYS = { Odd: ['h1', 'h3', 'h5', 'h7'], Even: ['h2', 'h4', 'h6'] };
+
   function renderScheduleEditor() {
     const wrap = document.getElementById('scheduleEditor'); wrap.innerHTML = '';
     const lunchDoc = schedules[`${myName}_lunch`] || {};
@@ -1064,7 +1072,30 @@
       const slotsDoc = schedules[slotsKey] || {};
       const block = document.createElement('div'); block.className = 'dayTypeBlock';
       const info = BLOCK_INFO[dt];
-      block.innerHTML = `<h3>${dt} Block</h3><p class="blockInfo">${info.days} · ${info.start}–${info.end}</p>`;
+      const headRow = document.createElement('div'); headRow.style.display = 'flex'; headRow.style.alignItems = 'center'; headRow.style.gap = '10px'; headRow.style.flexWrap = 'wrap';
+      const h3 = document.createElement('h3'); h3.textContent = `${dt} Block`;
+      headRow.appendChild(h3);
+      if (FILL_FROM_TRAD_KEYS[dt]) {
+        const fillBtn = document.createElement('button'); fillBtn.className = 'manage-btn'; fillBtn.textContent = '⇩ Fill from Trad';
+        fillBtn.onclick = () => {
+          const tradSlots = schedules[`${myName}_Trad_slots`] || {};
+          const keys = FILL_FROM_TRAD_KEYS[dt];
+          const hasAny = keys.some(k => tradSlots[k] && tradSlots[k].className);
+          if (!hasAny) { alert('Fill in your Trad (Friday) schedule first — there\'s nothing there yet to copy.'); return; }
+          if (!confirm(`This will overwrite ${dt} hours ${keys.map(k => k.slice(1)).join(', ')} with the matching classes from your Trad schedule. Continue?`)) return;
+          const current = schedules[slotsKey] || {};
+          const updated = { ...current };
+          keys.forEach(k => {
+            const t = tradSlots[k];
+            if (t) updated[k] = { ...(current[k] || {}), className: t.className || '', teacher: t.teacher || '' };
+          });
+          schedulesRef.doc(slotsKey).set(updated).catch(err => alert('Could not save: ' + err.message));
+        };
+        headRow.appendChild(fillBtn);
+      }
+      block.appendChild(headRow);
+      const infoP = document.createElement('p'); infoP.className = 'blockInfo'; infoP.textContent = `${info.days} · ${info.start}–${info.end}`;
+      block.appendChild(infoP);
 
       const saveSlot = (slotKey, patch) => {
         const current = schedules[slotsKey] || {};
@@ -1106,11 +1137,7 @@
         teacherInput.placeholder = slot.teacherFallbackFrom ? 'Teacher (defaults to ' + DAY_SCHEMAS[dt].find(x=>x.key===slot.teacherFallbackFrom).label + ')' : 'Teacher (optional)';
         teacherInput.value = s.teacher || '';
         teacherInput.onchange = () => saveSlot(slot.key, { teacher: teacherInput.value.trim() });
-        const trackLabel = document.createElement('label'); trackLabel.className = 'trackLabel';
-        const trackCheck = document.createElement('input'); trackCheck.type = 'checkbox'; trackCheck.checked = s.track === true;
-        trackCheck.onchange = () => saveSlot(slot.key, { track: trackCheck.checked });
-        trackLabel.appendChild(trackCheck); trackLabel.appendChild(document.createTextNode('Add Tracker'));
-        fields.appendChild(classInput); fields.appendChild(teacherInput); fields.appendChild(trackLabel);
+        fields.appendChild(classInput); fields.appendChild(teacherInput);
         row.appendChild(fields);
 
         if (slot.lunchGroup) {
@@ -1132,6 +1159,85 @@
       });
       wrap.appendChild(block);
     });
+
+    renderExtrasEditor(wrap);
+  }
+
+  // ===================== EXTRA / RECURRING EVENTS (clubs, practices, one-off things) =====================
+  function renderExtrasEditor(wrap) {
+    const block = document.createElement('div'); block.className = 'dayTypeBlock';
+    const h3 = document.createElement('h3'); h3.textContent = 'Clubs & extra events';
+    const infoP = document.createElement('p'); infoP.className = 'blockInfo';
+    infoP.textContent = 'Recurring or one-off things outside your normal block schedule (practice, clubs, appointments) — these layer on top of the schedule above and show up in Today even on weekends.';
+    block.appendChild(h3); block.appendChild(infoP);
+
+    const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const events = personExtras(myName);
+    const list = document.createElement('div');
+    events.forEach((ev, idx) => {
+      const row = document.createElement('div'); row.className = 'sedRow'; row.style.gridTemplateColumns = '1fr auto';
+      const desc = document.createElement('span');
+      const when = ev.recurring ? ('every ' + (ev.days || []).slice().sort().map(d => DOW[d]).join('/')) : ev.date;
+      desc.textContent = `${ev.title} — ${when}, ${formatTime12(ev.start)}–${formatTime12(ev.end)}`;
+      const del = document.createElement('button'); del.className = 'manage-btn'; del.textContent = 'Remove';
+      del.onclick = () => {
+        const updated = events.filter((_, i) => i !== idx);
+        schedulesRef.doc(`${myName}_extras`).set({ events: updated }).catch(err => alert('Could not remove: ' + err.message));
+      };
+      row.appendChild(desc); row.appendChild(del);
+      list.appendChild(row);
+    });
+    if (events.length === 0) { const empty = document.createElement('div'); empty.className = 'schedEmpty'; empty.textContent = 'Nothing added yet.'; list.appendChild(empty); }
+    block.appendChild(list);
+
+    const form = document.createElement('div'); form.style.cssText = 'margin-top:12px; display:flex; flex-direction:column; gap:8px;';
+    const titleInput = document.createElement('input'); titleInput.placeholder = 'Event name (e.g. Robotics Club)';
+    titleInput.style.cssText = 'padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:inherit; font-size:13px;';
+
+    const recurLabel = document.createElement('label'); recurLabel.className = 'trackLabel';
+    const recurCheck = document.createElement('input'); recurCheck.type = 'checkbox'; recurCheck.checked = true;
+    recurLabel.appendChild(recurCheck); recurLabel.appendChild(document.createTextNode(' Recurring weekly'));
+
+    const daysWrap = document.createElement('div'); daysWrap.style.cssText = 'display:flex; gap:8px;';
+    const dayChecks = DOW.map((d, i) => {
+      const lbl = document.createElement('label'); lbl.style.cssText = 'font-size:11px; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-soft);';
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = i;
+      lbl.appendChild(cb); lbl.appendChild(document.createTextNode(d));
+      daysWrap.appendChild(lbl);
+      return cb;
+    });
+
+    const dateInput = document.createElement('input'); dateInput.type = 'date'; dateInput.style.display = 'none';
+    dateInput.style.cssText += 'padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:inherit; font-size:13px;';
+
+    recurCheck.onchange = () => {
+      daysWrap.style.display = recurCheck.checked ? 'flex' : 'none';
+      dateInput.style.display = recurCheck.checked ? 'none' : 'block';
+    };
+
+    const timeWrap = document.createElement('div'); timeWrap.style.cssText = 'display:flex; gap:6px;';
+    const startInput = document.createElement('input'); startInput.type = 'time';
+    const endInput = document.createElement('input'); endInput.type = 'time';
+    timeWrap.appendChild(startInput); timeWrap.appendChild(endInput);
+
+    const addBtn = document.createElement('button'); addBtn.className = 'btn-primary'; addBtn.textContent = 'Add event'; addBtn.style.alignSelf = 'flex-start';
+    addBtn.onclick = () => {
+      const title = titleInput.value.trim();
+      if (!title || !startInput.value || !endInput.value) { alert('Name, start time, and end time are required.'); return; }
+      const recurring = recurCheck.checked;
+      const chosenDays = dayChecks.filter(cb => cb.checked).map(cb => Number(cb.value));
+      if (recurring && chosenDays.length === 0) { alert('Pick at least one day.'); return; }
+      if (!recurring && !dateInput.value) { alert('Pick a date.'); return; }
+      const ev = { title, start: startInput.value, end: endInput.value, recurring, days: recurring ? chosenDays : [], date: recurring ? null : dateInput.value };
+      const updated = [...personExtras(myName), ev];
+      schedulesRef.doc(`${myName}_extras`).set({ events: updated })
+        .then(() => { titleInput.value = ''; startInput.value = ''; endInput.value = ''; dateInput.value = ''; dayChecks.forEach(cb => cb.checked = false); })
+        .catch(err => alert('Could not add: ' + err.message));
+    };
+
+    form.appendChild(titleInput); form.appendChild(recurLabel); form.appendChild(daysWrap); form.appendChild(dateInput); form.appendChild(timeWrap); form.appendChild(addBtn);
+    block.appendChild(form);
+    wrap.appendChild(block);
   }
 
   // ===================== CHAT =====================
@@ -1183,6 +1289,7 @@
     "You're the cutest ever hardest working bum of all time 🥰",
     "🥰🥰🥰🥰🥰🥰🥰🥰😛",
     "I wish I could write you a million messages"
+    "my bubba thinks I can code but im larping"
   ];
   function setupHeartButton(btn, fill) {
     if (!btn || !fill) return;
