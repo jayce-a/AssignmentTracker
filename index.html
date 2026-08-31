@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>bums</title>
+<title>dook</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>😛</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -35,14 +35,16 @@
   /* Sidebar layout — desktop only, per request. Sidebars are locked in place (fixed
      height matching the grid row) with their own internal scroll; only the assignment
      list in the middle scrolls with the page. */
-  .assignGrid { display: grid; grid-template-columns: 260px 1fr 280px; gap: 20px; align-items: start; height: calc(100vh - 230px); min-height: 460px; }
+  .assignGrid { display: grid; min-width: 0; grid-template-columns: 260px 1fr 280px; gap: 20px; align-items: start; height: calc(100vh - 230px); min-height: 460px; }
   .scheduleSidebar { height: 100%; overflow-y: auto; padding-right: 2px; }
   .scheduleSidebar .todayGrid { display: block; }
   .scheduleSidebar .personCol { margin-bottom: 18px; }
-  .assignMain { height: 100%; overflow-y: auto; padding-right: 2px; }
-  .chatSidebar { height: 100%; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; }
-  .chatSidebar b { font-size: 13px; }
-  .chatMiniMessages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding: 8px 0; }
+  .assignMain { height: 100%; min-height: 0; min-width: 0; overflow-y: auto; padding-right: 2px; }
+  .chatSidebar { height: 100%; min-height: 0; min-width: 0; overflow: hidden; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; }
+  .chatSidebar b { font-size: 13px; flex-shrink: 0; }
+  .chatMiniMessages { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 5px; padding: 8px 0; }
+  .chatMiniMessages .msg-row { max-width: 100%; min-width: 0; }
+  .chatMiniMessages .bubble { overflow-wrap: anywhere; }
   .chatMiniMessages .bubble { font-size: 12px; padding: 6px 10px; }
   .chatMiniMessages .msg-meta { font-size: 9px; }
   .chatMiniInputBar { display: flex; gap: 5px; }
@@ -84,7 +86,8 @@
   .add-btn:hover { background: var(--plum-dark); }
 
   .list { display: flex; flex-direction: column; gap: 10px; }
-  .card { background: var(--paper-card); border: 1px solid var(--line); border-left: 5px solid #999; border-radius: var(--radius); padding: 14px 16px; display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 12px; align-items: center; }
+  .card { background: var(--paper-card); border: 1px solid var(--line); border-left: 5px solid #999; border-radius: var(--radius); padding: 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 12px; align-items: center; }
+  .card .info { min-width: 0; }
   .card.full { opacity: 0.55; }
   .avatar { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; color: #fff; }
   .avatar.jayce { background: var(--jayce); } .avatar.anna { background: var(--anna); }
@@ -194,12 +197,26 @@
   .lunchPicker { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; font-size: 11.5px; color: var(--ink-soft); }
   .lunchBtn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--ink); }
   .lunchBtn.active { background: var(--plum); color: #fff; border-color: var(--plum); }
+
+  @media (max-width: 700px) {
+    .container { padding-left: 12px; padding-right: 12px; }
+    .toolbar { align-items: stretch; }
+    .right-controls { width: 100%; min-width: 0; }
+    .right-controls > * { max-width: 100%; min-width: 0; }
+    .right-controls select { flex: 1 1 0; min-width: 0; }
+    .right-controls .add-btn { flex: 1 1 auto; }
+    .statusSelect { max-width: 100%; }
+    .sedRow { grid-template-columns: 1fr auto !important; min-width: 0; }
+    .hourFields { grid-template-columns: minmax(0, 1fr); }
+    .hourFields input { width: 100%; min-width: 0; }
+    .dayTypeBlock { min-width: 0; overflow: hidden; }
+  }
 </style>
 </head>
 <body>
 
 <div id="loginGate">
-  <h1>Assignment Tracker</h1>
+  <h1>dook</h1>
   <p>Enter your password to sign in as yourself.</p>
   <div id="pwForm">
     <input type="password" id="pwInput" placeholder="Password" autofocus>
@@ -211,7 +228,7 @@
 <div id="appShell">
 <header>
   <p class="eyebrow">me and my bub locking in</p>
-  <h1>Assignment Tracker</h1>
+  <h1>dook</h1>
   <p id="connStatus"><span id="connStatusText">Connecting…</span> · Signed in as <b id="whoAmI"></b> <span id="signOutLink">Sign out</span></p>
 </header>
 
@@ -778,7 +795,27 @@
   function extrasForDate(person, dateObj) {
     const wd = dateObj.getDay();
     const dstr = dateObj.toISOString().slice(0, 10);
-    return personExtras(person).filter(ev => ev.recurring ? (ev.days || []).includes(wd) : ev.date === dstr);
+    const localDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+
+    return personExtras(person).filter(ev => {
+      if (!ev.recurring) return ev.date === dstr;
+
+      const frequency = ev.frequency || 'weekly';
+      if (frequency === 'monthly') {
+        if (!ev.startDate) return false;
+        const anchor = new Date(ev.startDate + 'T00:00:00');
+        return localDate.getDate() === anchor.getDate();
+      }
+
+      if (!(ev.days || []).includes(wd)) return false;
+      if (frequency === 'biweekly') {
+        if (!ev.startDate) return true;
+        const anchor = new Date(ev.startDate + 'T00:00:00');
+        const diffDays = Math.round((localDate - new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate())) / 86400000);
+        return diffDays >= 0 && diffDays % 14 === 0;
+      }
+      return true; // weekly
+    });
   }
 
   function renderPersonToday(person, dt) {
@@ -871,11 +908,6 @@
       card.className = `card ${full ? 'full' : ''}`;
       card.style.borderLeftColor = ci.colorHex;
 
-      const avatar = document.createElement('div');
-      avatar.className = `avatar ${(a.addedBy || '').toLowerCase()}`;
-      avatar.title = 'Added by ' + (a.addedBy || 'unknown');
-      avatar.textContent = a.addedBy ? a.addedBy[0] : '?';
-
       const info = document.createElement('div'); info.className = 'info';
       const nameEl = a.link
         ? Object.assign(document.createElement('a'), { href: a.link, target: '_blank', rel: 'noopener', textContent: a.name })
@@ -902,7 +934,7 @@
       const del = document.createElement('button'); del.className = 'del-btn'; del.textContent = '✕'; del.title = 'Delete';
       del.onclick = () => { if (confirm(`Delete "${a.name}"?`)) assignmentsRef.doc(a.id).delete(); };
 
-      card.appendChild(avatar); card.appendChild(info); card.appendChild(stampEl); card.appendChild(statusCol); card.appendChild(del);
+      card.appendChild(info); card.appendChild(stampEl); card.appendChild(statusCol); card.appendChild(del);
       list.appendChild(card);
     });
   }
@@ -1247,10 +1279,20 @@
     const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const events = personExtras(myName);
     const list = document.createElement('div');
+
     events.forEach((ev, idx) => {
       const row = document.createElement('div'); row.className = 'sedRow'; row.style.gridTemplateColumns = '1fr auto';
       const desc = document.createElement('span');
-      const when = ev.recurring ? ('every ' + (ev.days || []).slice().sort().map(d => DOW[d]).join('/')) : ev.date;
+      let when;
+      if (!ev.recurring) {
+        when = ev.date;
+      } else if ((ev.frequency || 'weekly') === 'monthly') {
+        const day = ev.startDate ? new Date(ev.startDate + 'T00:00:00').getDate() : '?';
+        when = `monthly on the ${day}${day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th'}`;
+      } else {
+        const days = (ev.days || []).slice().sort().map(d => DOW[d]).join('/');
+        when = (ev.frequency === 'biweekly' ? 'every other ' : 'every ') + days;
+      }
       desc.textContent = `${ev.title} — ${when}, ${formatTime12(ev.start)}–${formatTime12(ev.end)}`;
       const del = document.createElement('button'); del.className = 'manage-btn'; del.textContent = 'Remove';
       del.onclick = () => {
@@ -1267,50 +1309,92 @@
     const titleInput = document.createElement('input'); titleInput.placeholder = 'Event name (e.g. Robotics Club)';
     titleInput.style.cssText = 'padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:inherit; font-size:13px;';
 
-    const recurLabel = document.createElement('label'); recurLabel.className = 'trackLabel';
-    const recurCheck = document.createElement('input'); recurCheck.type = 'checkbox'; recurCheck.checked = true;
-    recurLabel.appendChild(recurCheck); recurLabel.appendChild(document.createTextNode(' Recurring weekly'));
+    const frequencyLabel = document.createElement('label'); frequencyLabel.className = 'trackLabel';
+    const frequencySelect = document.createElement('select');
+    frequencySelect.style.cssText = 'padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:inherit; font-size:13px; width:100%;';
+    [
+      ['weekly', 'Every week'],
+      ['biweekly', 'Every other week'],
+      ['monthly', 'Once a month'],
+      ['once', 'One time']
+    ].forEach(([value, label]) => {
+      const opt = document.createElement('option'); opt.value = value; opt.textContent = label; frequencySelect.appendChild(opt);
+    });
+    frequencyLabel.appendChild(document.createTextNode('Repeat: '));
+    frequencyLabel.appendChild(frequencySelect);
 
-    const daysWrap = document.createElement('div'); daysWrap.style.cssText = 'display:flex; gap:8px;';
+    const daysWrap = document.createElement('div'); daysWrap.style.cssText = 'display:flex; gap:8px; flex-wrap:wrap;';
     const dayChecks = DOW.map((d, i) => {
-      const lbl = document.createElement('label'); lbl.style.cssText = 'font-size:11px; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-soft);';
+      const label = document.createElement('label'); label.className = 'trackLabel';
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = i;
-      lbl.appendChild(cb); lbl.appendChild(document.createTextNode(d));
-      daysWrap.appendChild(lbl);
+      label.appendChild(cb); label.appendChild(document.createTextNode(' ' + d));
+      daysWrap.appendChild(label);
       return cb;
     });
 
-    const dateInput = document.createElement('input'); dateInput.type = 'date'; dateInput.style.display = 'none';
-    dateInput.style.cssText += 'padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:inherit; font-size:13px;';
+    const startDateInput = document.createElement('input'); startDateInput.type = 'date';
+    startDateInput.style.cssText = 'padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:inherit; font-size:13px; width:100%;';
+    startDateInput.title = 'For every other week, this is the first occurrence. For monthly, this chooses the day of the month.';
 
-    recurCheck.onchange = () => {
-      daysWrap.style.display = recurCheck.checked ? 'flex' : 'none';
-      dateInput.style.display = recurCheck.checked ? 'none' : 'block';
-    };
+    const dateInput = document.createElement('input'); dateInput.type = 'date';
+    dateInput.style.cssText = 'padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); font-family:inherit; font-size:13px; width:100%;';
 
-    const timeWrap = document.createElement('div'); timeWrap.style.cssText = 'display:flex; gap:6px;';
+    const timeWrap = document.createElement('div'); timeWrap.style.cssText = 'display:flex; gap:6px; flex-wrap:wrap;';
     const startInput = document.createElement('input'); startInput.type = 'time';
     const endInput = document.createElement('input'); endInput.type = 'time';
     timeWrap.appendChild(startInput); timeWrap.appendChild(endInput);
 
+    const updateRecurrenceUI = () => {
+      const freq = frequencySelect.value;
+      daysWrap.style.display = (freq === 'weekly' || freq === 'biweekly') ? 'flex' : 'none';
+      startDateInput.style.display = freq === 'once' ? 'none' : 'block';
+      dateInput.style.display = freq === 'once' ? 'block' : 'none';
+      startDateInput.placeholder = freq === 'monthly' ? 'First occurrence / day of month' : 'First occurrence';
+    };
+    frequencySelect.onchange = updateRecurrenceUI;
+
     const addBtn = document.createElement('button'); addBtn.className = 'btn-primary'; addBtn.textContent = 'Add event'; addBtn.style.alignSelf = 'flex-start';
     addBtn.onclick = () => {
       const title = titleInput.value.trim();
+      const freq = frequencySelect.value;
       if (!title || !startInput.value || !endInput.value) { alert('Name, start time, and end time are required.'); return; }
-      const recurring = recurCheck.checked;
+
       const chosenDays = dayChecks.filter(cb => cb.checked).map(cb => Number(cb.value));
-      if (recurring && chosenDays.length === 0) { alert('Pick at least one day.'); return; }
-      if (!recurring && !dateInput.value) { alert('Pick a date.'); return; }
-      const ev = { title, start: startInput.value, end: endInput.value, recurring, days: recurring ? chosenDays : [], date: recurring ? null : dateInput.value };
+      if ((freq === 'weekly' || freq === 'biweekly') && chosenDays.length === 0) { alert('Pick at least one day.'); return; }
+      if (freq !== 'once' && !startDateInput.value) { alert('Pick the first occurrence date.'); return; }
+      if (freq === 'once' && !dateInput.value) { alert('Pick a date.'); return; }
+
+      const ev = {
+        title,
+        start: startInput.value,
+        end: endInput.value,
+        recurring: freq !== 'once',
+        frequency: freq,
+        days: (freq === 'weekly' || freq === 'biweekly') ? chosenDays : [],
+        startDate: freq !== 'once' ? startDateInput.value : null,
+        date: freq === 'once' ? dateInput.value : null
+      };
       const updated = [...personExtras(myName), ev];
       schedulesRef.doc(`${myName}_extras`).set({ events: updated })
-        .then(() => { titleInput.value = ''; startInput.value = ''; endInput.value = ''; dateInput.value = ''; dayChecks.forEach(cb => cb.checked = false); })
+        .then(() => {
+          titleInput.value = ''; startInput.value = ''; endInput.value = ''; dateInput.value = ''; startDateInput.value = '';
+          dayChecks.forEach(cb => cb.checked = false);
+          frequencySelect.value = 'weekly';
+          updateRecurrenceUI();
+        })
         .catch(err => alert('Could not add: ' + err.message));
     };
 
-    form.appendChild(titleInput); form.appendChild(recurLabel); form.appendChild(daysWrap); form.appendChild(dateInput); form.appendChild(timeWrap); form.appendChild(addBtn);
+    form.appendChild(titleInput);
+    form.appendChild(frequencyLabel);
+    form.appendChild(daysWrap);
+    form.appendChild(startDateInput);
+    form.appendChild(dateInput);
+    form.appendChild(timeWrap);
+    form.appendChild(addBtn);
     block.appendChild(form);
     wrap.appendChild(block);
+    updateRecurrenceUI();
   }
 
   // ===================== CHAT =====================
@@ -1362,6 +1446,10 @@
     "You're the cutest ever hardest working bum of all time 🥰",
     "🥰🥰🥰🥰🥰🥰🥰🥰😛",
     "I wish I could write you a million messages"
+	"you're just the awesomest thing of all time"
+	"i love you like a log 🪵"
+	"I want a #hug asap"
+	"no need to be spamming this button, save some messages for later 🙄"
   ];
   function setupHeartButton(btn, fill) {
     if (!btn || !fill) return;
