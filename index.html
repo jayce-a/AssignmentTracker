@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>dook</title>
+<script>
+  // Applied ASAP (before CSS paints) to avoid a light-mode flash for people using dark/system.
+  (function () {
+    const saved = localStorage.getItem('dook_theme') || 'system';
+    const resolved = saved === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
+    document.documentElement.dataset.theme = resolved;
+  })();
+</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>😛</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -11,14 +19,26 @@
   :root {
     --paper: #dde3df; --paper-card: #eef1ee; --ink: #262b2a; --ink-soft: #5b625f; --line: #c3ccc6;
     --plum: #564a86; --plum-dark: #453a70; --danger: #a83c3c; --ok: #3f7a4e; --radius: 4px;
-    --jayce: #6d5c5e; --anna: #c14e72;
+    --jayce: #6d5c5e; --anna: #c14e72; --card-bg: #fff; --modal-bg: #fff;
+  }
+  html[data-theme="dark"] {
+    --paper: #1c1e1d; --paper-card: #262a28; --ink: #e8e9e6; --ink-soft: #9aa19c; --line: #3a3f3c;
+    --plum: #8b7ac9; --plum-dark: #a596dd; --danger: #e08a7d; --ok: #7fc493;
+    --jayce: #b3999c; --anna: #e594ae; --card-bg: #262a28; --modal-bg: #2d3230;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 42px; font-family: 'Inter', sans-serif; color: var(--ink); min-height: 100vh; }
-  header { padding: 28px 24px 14px; max-width: 1500px; margin: 0 auto; }
+  input, select, textarea { background: var(--card-bg); color: var(--ink); }
+  html { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body { margin: 0; background: var(--paper); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 42px; font-family: 'Inter', sans-serif; color: var(--ink); min-height: 100vh; transition: background 0.15s ease, color 0.15s ease; }
+  header { padding: 28px 24px 14px; max-width: 1500px; margin: 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   header .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--ink-soft); margin: 0 0 6px; }
   h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(26px, 5vw, 38px); margin: 0; letter-spacing: -0.01em; }
   .container { max-width: 1500px; margin: 0 auto; padding: 0 24px 80px; }
+
+  .themeToggle { display: flex; gap: 2px; background: var(--paper-card); border: 1px solid var(--line); border-radius: 999px; padding: 3px; flex-shrink: 0; }
+  .themeToggle button { font-family: 'IBM Plex Mono', monospace; font-size: 12px; border: none; background: transparent; color: var(--ink-soft); border-radius: 999px; padding: 6px 10px; cursor: pointer; line-height: 1; }
+  .themeToggle button.active { background: var(--plum); color: #fff; }
 
   .topnav { display: flex; gap: 8px; padding: 0 24px; max-width: 1500px; margin: 0 auto; flex-wrap: wrap; }
   .topnav button { font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 8px 14px; border: 1px solid var(--line); border-bottom: none; border-radius: 6px 6px 0 0; background: var(--paper); color: var(--ink-soft); cursor: pointer; }
@@ -27,7 +47,7 @@
   /* Today widget */
   .todayCard { background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px; }
   .todayHead { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-  .daytype-btn { font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: #fff; border: 1px dashed var(--ink-soft); border-radius: 999px; padding: 6px 14px; cursor: pointer; color: var(--ink); }
+  .daytype-btn { font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: var(--card-bg); border: 1px dashed var(--ink-soft); border-radius: 999px; padding: 6px 14px; cursor: pointer; color: var(--ink); }
   .daytype-btn:hover { border-color: var(--plum); }
   .todayGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 560px) { .todayGrid { grid-template-columns: 1fr; } }
@@ -61,7 +81,7 @@
   .schedRow { display: flex; justify-content: space-between; font-size: 12.5px; padding: 3px 0; border-bottom: 1px dotted var(--line); }
   .schedRow .t { color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
   .schedEmpty { font-size: 12px; color: var(--ink-soft); font-style: italic; }
-  .currentClassBox { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; margin-bottom: 8px; }
+  .currentClassBox { background: var(--card-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; margin-bottom: 8px; }
   .ccName { font-weight: 600; font-size: 13px; margin-bottom: 5px; }
   .ccBarWrap { height: 7px; background: var(--line); border-radius: 999px; overflow: hidden; }
   .ccBar { height: 100%; border-radius: 999px; transition: width 1s linear; }
@@ -71,7 +91,7 @@
 
   .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px; }
   .chiprow { display: flex; gap: 6px; margin-bottom: 8px; }
-  .chiprow button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink-soft); cursor: pointer; }
+  .chiprow button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); color: var(--ink-soft); cursor: pointer; }
   .chiprow button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
   .tabs { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .tab { font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; }
@@ -81,7 +101,7 @@
   .tab.drag-over { border-color: var(--plum); border-style: dashed; border-width: 2px; }
   .manage-btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px dashed var(--ink-soft); background: transparent; color: var(--ink-soft); cursor: pointer; }
   .right-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  select, .add-btn { font-family: 'Inter', sans-serif; font-size: 13px; padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; color: var(--ink); }
+  select, .add-btn { font-family: 'Inter', sans-serif; font-size: 13px; padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg); color: var(--ink); }
   .add-btn { background: var(--plum); color: #fff; border: none; font-weight: 600; cursor: pointer; }
   .add-btn:hover { background: var(--plum-dark); }
 
@@ -100,7 +120,7 @@
   .stamp.today { border-color: #c1852c; color: #c1852c; }
 
   .statusCol { display: flex; flex-direction: column; gap: 4px; }
-  .statusSelect { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; padding: 4px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; }
+  .statusSelect { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; padding: 4px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg); }
   .statusPairRow { display: flex; align-items: center; gap: 4px; }
   .statusPairRow .plabel { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--ink-soft); width: 14px; text-align: center; }
 
@@ -110,7 +130,7 @@
 
   .overlay { display: none; position: fixed; inset: 0; background: rgba(38,43,42,0.4); align-items: center; justify-content: center; padding: 20px; z-index: 10; }
   .overlay.show { display: flex; }
-  .modal { background: #fff; border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; overflow-y: auto; }
+  .modal { background: var(--card-bg); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; overflow-y: auto; }
   .modal h2 { font-family: 'Fraunces', serif; font-size: 20px; margin: 0 0 4px; }
   .field label { display: block; font-size: 11px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); margin-bottom: 4px; }
   .field input, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: 14px; }
@@ -122,16 +142,30 @@
   .classRow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
   .classRow .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
   .classRow .cname { flex: 1; font-size: 13px; }
-  .classRow select.ownerSelect { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; }
-  .classRow button { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; cursor: pointer; }
+  .classRow select.ownerSelect { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg); }
+  .classRow button { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg); cursor: pointer; }
   .swatchPicker { display: flex; gap: 6px; flex-wrap: wrap; }
   .swatchPicker button { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
   .swatchPicker button.picked { border-color: var(--ink); }
   .ownerPicker { display: flex; gap: 6px; }
-  .ownerPicker button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--ink-soft); }
+  .ownerPicker button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); cursor: pointer; color: var(--ink-soft); }
   .ownerPicker button.picked { background: var(--ink); color: #fff; border-color: var(--ink); }
 
-  #connStatus { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+  #connStatus { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 4px; display: flex; align-items: center; flex-wrap: wrap; }
+  .connDot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; background: var(--ink-soft); flex-shrink: 0; }
+  .connDot.saving { background: #c1852c; }
+  .connDot.synced { background: var(--ok); }
+  .connDot.error { background: var(--danger); }
+
+  /* Custom confirm dialog + undo toast (replaces native confirm()) */
+  .confirmModal { max-width: 360px; }
+  .confirmModal p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; }
+  #toastStack { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 50; align-items: center; }
+  .toast { background: var(--ink); color: var(--paper-card); font-family: 'Inter', sans-serif; font-size: 13px; padding: 10px 12px 10px 16px; border-radius: var(--radius); display: flex; align-items: center; gap: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); animation: toastIn 0.18s ease; }
+  html[data-theme="dark"] .toast { background: var(--paper-card); color: var(--ink); border: 1px solid var(--line); }
+  .toast button { font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: none; border: none; color: #b8a8ff; cursor: pointer; font-weight: 600; padding: 2px 4px; }
+  html[data-theme="dark"] .toast button { color: var(--plum); }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
   #loginGate { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 20px; }
   #loginGate h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 28px; margin: 0; }
@@ -152,7 +186,7 @@
   .msg-row.theirs { align-self: flex-start; align-items: flex-start; }
   .bubble { padding: 8px 12px; border-radius: 16px; font-size: 13px; line-height: 1.35; word-wrap: break-word; white-space: pre-wrap; }
   .mine .bubble { background: var(--plum); color: #fff; border-bottom-right-radius: 4px; }
-  .theirs .bubble { background: #fff; color: var(--ink); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .theirs .bubble { background: var(--card-bg); color: var(--ink); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
   .msg-meta { font-size: 10px; color: var(--ink-soft); margin: 2px 6px 0; font-family: 'IBM Plex Mono', monospace; }
   #chatInputBar { display: flex; gap: 6px; padding: 10px 0; }
   #chatInput { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 18px; padding: 8px 14px; font-size: 13px; font-family: inherit; max-height: 70px; }
@@ -160,7 +194,7 @@
   #chatSend:hover { background: var(--plum-dark); }
 
   .heartWrap { position: relative; margin-top: 10px; display: flex; justify-content: center; }
-  .heartBtn { position: relative; overflow: hidden; width: 100%; height: 32px; border-radius: 6px; border: 1px solid var(--line); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .heartBtn { position: relative; overflow: hidden; width: 100%; height: 32px; border-radius: 6px; border: 1px solid var(--line); background: var(--card-bg); cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .heartBtn:disabled { cursor: default; opacity: 0.9; }
   .heartBtn svg { width: 18px; height: 18px; fill: var(--ink-soft); }
   .heartFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: rgba(91,98,95,0.14); pointer-events: none; }
@@ -195,7 +229,7 @@
   .hourFields input { padding: 7px 9px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; font-family: inherit; }
   .trackLabel { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ink-soft); white-space: nowrap; cursor: pointer; }
   .lunchPicker { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; font-size: 11.5px; color: var(--ink-soft); }
-  .lunchBtn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--ink); }
+  .lunchBtn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); cursor: pointer; color: var(--ink); }
   .lunchBtn.active { background: var(--plum); color: #fff; border-color: var(--plum); }
 
   @media (max-width: 700px) {
@@ -227,9 +261,16 @@
 
 <div id="appShell">
 <header>
-  <p class="eyebrow">me and my bub locking in</p>
-  <h1>dook</h1>
-  <p id="connStatus"><span id="connStatusText">Connecting…</span> · Signed in as <b id="whoAmI"></b> <span id="signOutLink">Sign out</span></p>
+  <div>
+    <p class="eyebrow">me and my bub locking in</p>
+    <h1>dook</h1>
+    <p id="connStatus"><span class="connDot" id="connDot"></span><span id="connStatusText">Connecting…</span> · Signed in as <b id="whoAmI"></b> <span id="signOutLink">Sign out</span></p>
+  </div>
+  <div class="themeToggle" id="themeToggle">
+    <button data-theme="light" title="Light">☀️</button>
+    <button data-theme="dark" title="Dark">🌙</button>
+    <button data-theme="system" title="Match system">🖥️</button>
+  </div>
 </header>
 
 <div class="topnav">
@@ -323,18 +364,28 @@
   </div>
 </div>
 
-<!-- Add assignment modal -->
+<!-- Add / Edit assignment modal -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <h2>New assignment</h2>
+    <h2 id="addModalTitle">New assignment</h2>
     <div class="field"><label for="fClass">Class</label><select id="fClass"></select></div>
-    <div class="field"><label for="fUnit">Unit number</label><input type="text" id="fUnit" placeholder="e.g. 3" inputmode="numeric"></div>
+    <div class="field" id="fUnitField"><label for="fUnit">Unit number</label><input type="text" id="fUnit" placeholder="e.g. 3" inputmode="numeric"></div>
     <div class="field"><label for="fName">Assignment name</label><input type="text" id="fName" placeholder="e.g. Fiscal Policy Essay"></div>
     <div class="field"><label for="fLink">Link (optional)</label><input type="url" id="fLink" placeholder="https://…"></div>
     <div class="field"><label for="fDate">Due date</label><input type="date" id="fDate"></div>
     <div class="modal-actions"><button class="btn-secondary" id="cancelAdd">Cancel</button><button class="btn-primary" id="saveAdd">Save</button></div>
   </div>
 </div>
+
+<!-- Generic confirm dialog (replaces native confirm()) -->
+<div class="overlay" id="overlayConfirm">
+  <div class="modal confirmModal">
+    <h2 id="confirmTitle">Are you sure?</h2>
+    <p id="confirmMessage"></p>
+    <div class="modal-actions"><button class="btn-secondary" id="confirmCancelBtn">Cancel</button><button class="btn-primary" id="confirmOkBtn" style="background:var(--danger);">Delete</button></div>
+  </div>
+</div>
+<div id="toastStack"></div>
 
 <!-- Bulk import modal -->
 <div class="overlay" id="overlayImport">
@@ -370,6 +421,22 @@
     "1ac57ad2476e8a3ae00f066812508296125dfa7ed7127f3ac3f95cfc5ecc97d5": "Anna"    // "annabum"
   };
   const SESSION_KEY = "ledger_user";
+
+  // ===================== THEME TOGGLE =====================
+  (function setupTheme() {
+    const THEME_KEY = 'dook_theme';
+    const buttons = document.querySelectorAll('#themeToggle button');
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    function apply(mode) {
+      const resolved = mode === 'system' ? (mq.matches ? 'dark' : 'light') : mode;
+      document.documentElement.dataset.theme = resolved;
+      buttons.forEach(b => b.classList.toggle('active', b.dataset.theme === mode));
+    }
+    function setMode(mode) { localStorage.setItem(THEME_KEY, mode); apply(mode); }
+    buttons.forEach(b => b.onclick = () => setMode(b.dataset.theme));
+    mq.addEventListener('change', () => { if ((localStorage.getItem(THEME_KEY) || 'system') === 'system') apply('system'); });
+    apply(localStorage.getItem(THEME_KEY) || 'system');
+  })();
 
   // Pure-JS SHA-256 fallback — window.crypto.subtle only works in a "secure context"
   // (https, or localhost), so opening this file directly (file://) or over plain http
@@ -633,6 +700,35 @@
 
   let db, assignmentsRef, classesRef, messagesRef, schedulesRef, overridesRef;
   const connStatus = document.getElementById('connStatusText');
+  const connDot = document.getElementById('connDot');
+
+  // ===================== SYNC STATUS INDICATOR =====================
+  let pendingWrites = 0, lastSyncedAt = null, connErrored = false;
+  function setConnState(state, text) {
+    connDot.className = 'connDot' + (state ? ' ' + state : '');
+    if (text !== undefined) connStatus.textContent = text;
+  }
+  function refreshSyncedLabel() {
+    if (connErrored || pendingWrites > 0 || !lastSyncedAt) return;
+    const secs = Math.round((Date.now() - lastSyncedAt) / 1000);
+    const label = secs < 3 ? 'Synced' : secs < 60 ? `Synced — ${secs}s ago` : `Synced — ${Math.round(secs / 60)}m ago`;
+    setConnState('synced', label);
+  }
+  setInterval(refreshSyncedLabel, 5000);
+  // Wrap a Firestore write promise so the header dot shows "Saving…" while it's in flight.
+  function trackWrite(promise) {
+    pendingWrites++;
+    setConnState('saving', 'Saving…');
+    return promise.then((r) => {
+      pendingWrites--; lastSyncedAt = Date.now();
+      if (pendingWrites === 0) refreshSyncedLabel();
+      return r;
+    }, (err) => {
+      pendingWrites--; connErrored = true;
+      setConnState('error', 'Could not save — ' + (err && err.message ? err.message : 'check your connection'));
+      throw err;
+    });
+  }
   let assignments = [], classes = [], messages = [];
   let schedules = {}; // key: `${person}_${dayType}` -> {periods:[{time,className}]}
   let todayOverride = null; // dayType string or null
@@ -645,16 +741,16 @@
 
   function initApp() {
     if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
-      connStatus.textContent = 'Not connected — this file still has placeholder Firebase settings. Edit firebaseConfig near the top of the <script> with your real project keys before this will load anything.';
-      connStatus.style.color = 'var(--danger)';
+      connErrored = true;
+      setConnState('error', 'Not connected — this file still has placeholder Firebase settings. Edit firebaseConfig near the top of the <script> with your real project keys before this will load anything.');
       return;
     }
     try {
       firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
     } catch (e) {
-      connStatus.textContent = 'Could not connect — check your Firebase config: ' + e.message;
-      connStatus.style.color = 'var(--danger)';
+      connErrored = true;
+      setConnState('error', 'Could not connect — check your Firebase config: ' + e.message);
       console.error('Firebase init failed:', e);
       return;
     }
@@ -674,9 +770,9 @@
 
     assignmentsRef.onSnapshot((snapshot) => {
       assignments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      connStatus.textContent = `Synced — ${assignments.length} assignment${assignments.length === 1 ? '' : 's'}`;
+      connErrored = false; lastSyncedAt = Date.now(); refreshSyncedLabel();
       checkAutoTransitions(); render();
-    }, (err) => { connStatus.textContent = 'Connection error — check your Firebase config'; console.error(err); });
+    }, (err) => { connErrored = true; setConnState('error', 'Connection error — check your Firebase config'); console.error(err); });
 
     messagesRef.orderBy('timestamp', 'desc').limit(200).onSnapshot((snap) => {
       messages = snap.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
@@ -780,7 +876,7 @@
     const btn = document.getElementById('dayTypeBtn');
     if (dt) {
       const info = BLOCK_INFO[dt];
-      btn.textContent = `${dt} Block — ${info.days} · ${info.start}–${info.end} (click to change)`;
+      btn.textContent = `${dt} Block (click to change)`;
     } else {
       btn.textContent = 'No school today (click to set a day type)';
     }
@@ -877,6 +973,53 @@
     overridesRef.doc(todayStr()).set({ dayType: next });
   };
 
+  // ===================== CUSTOM CONFIRM DIALOG + UNDO TOASTS =====================
+  // Replaces native confirm()/alert()-style prompts with something that matches the site.
+  const overlayConfirm = document.getElementById('overlayConfirm');
+  function showConfirm(title, message, okLabel) {
+    return new Promise((resolve) => {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      const okBtn = document.getElementById('confirmOkBtn');
+      okBtn.textContent = okLabel || 'Delete';
+      overlayConfirm.classList.add('show');
+      const cancelBtn = document.getElementById('confirmCancelBtn');
+      const cleanup = (result) => {
+        overlayConfirm.classList.remove('show');
+        okBtn.onclick = null; cancelBtn.onclick = null; overlayConfirm.onclick = null;
+        resolve(result);
+      };
+      okBtn.onclick = () => cleanup(true);
+      cancelBtn.onclick = () => cleanup(false);
+      overlayConfirm.onclick = (e) => { if (e.target === overlayConfirm) cleanup(false); };
+    });
+  }
+  function showToast(message, undoLabel, onUndo, durationMs) {
+    const stack = document.getElementById('toastStack');
+    const toast = document.createElement('div'); toast.className = 'toast';
+    const text = document.createElement('span'); text.textContent = message;
+    toast.appendChild(text);
+    let timer;
+    if (onUndo) {
+      const btn = document.createElement('button'); btn.textContent = undoLabel || 'Undo';
+      btn.onclick = () => { clearTimeout(timer); toast.remove(); onUndo(); };
+      toast.appendChild(btn);
+    }
+    stack.appendChild(toast);
+    timer = setTimeout(() => toast.remove(), durationMs || 4500);
+  }
+  // Assignments the user just deleted — hidden from the list immediately, actually
+  // removed from Firestore only once their undo window (below) expires.
+  const pendingDeleteIds = new Set();
+  function deleteAssignmentWithUndo(a) {
+    pendingDeleteIds.add(a.id);
+    render();
+    const timer = setTimeout(() => {
+      if (pendingDeleteIds.has(a.id)) { pendingDeleteIds.delete(a.id); trackWrite(assignmentsRef.doc(a.id).delete()).catch(err => alert('Delete failed: ' + err.message)); }
+    }, 5000);
+    showToast(`"${a.name}" deleted`, 'Undo', () => { clearTimeout(timer); pendingDeleteIds.delete(a.id); render(); }, 5200);
+  }
+
   // ===================== RENDER: ASSIGNMENTS =====================
   function render() {
     const activeTab = activeClassFilter;
@@ -884,6 +1027,7 @@
     const sortOrder = document.getElementById('sortOrder').value;
 
     let filtered = assignments.filter(a => {
+      if (pendingDeleteIds.has(a.id)) return false;
       if (activeTab !== 'all' && a.class !== activeTab) return false;
       const full = isFullySubmitted(a);
       if (statusFilter === 'active' && full) return false;
@@ -899,7 +1043,13 @@
 
     const list = document.getElementById('list'); const empty = document.getElementById('emptyState');
     list.innerHTML = '';
-    if (filtered.length === 0) { empty.style.display = 'block'; return; }
+    if (filtered.length === 0) {
+      empty.textContent = statusFilter === 'active' ? "You're caught up. Nothing due right now. 🎉"
+        : statusFilter === 'submitted' ? "Nothing submitted here yet."
+        : "Nothing here yet — add an assignment above.";
+      empty.style.display = 'block';
+      return;
+    }
     empty.style.display = 'none';
 
     filtered.forEach(a => {
@@ -931,10 +1081,17 @@
         statusCol.appendChild(buildStatusSelect(a.status, (val) => setStatus(a, val, null)));
       }
 
+      const actionCol = document.createElement('div'); actionCol.style.display = 'flex'; actionCol.style.flexDirection = 'column'; actionCol.style.gap = '2px';
+      const edit = document.createElement('button'); edit.className = 'del-btn'; edit.textContent = '✎'; edit.title = 'Edit';
+      edit.onclick = () => openEditModal(a);
       const del = document.createElement('button'); del.className = 'del-btn'; del.textContent = '✕'; del.title = 'Delete';
-      del.onclick = () => { if (confirm(`Delete "${a.name}"?`)) assignmentsRef.doc(a.id).delete(); };
+      del.onclick = async () => {
+        const ok = await showConfirm('Delete assignment?', `"${a.name}" will be removed. You can undo this for a few seconds after.`, 'Delete');
+        if (ok) deleteAssignmentWithUndo(a);
+      };
+      actionCol.appendChild(edit); actionCol.appendChild(del);
 
-      card.appendChild(info); card.appendChild(stampEl); card.appendChild(statusCol); card.appendChild(del);
+      card.appendChild(info); card.appendChild(stampEl); card.appendChild(statusCol); card.appendChild(actionCol);
       list.appendChild(card);
     });
   }
@@ -964,7 +1121,7 @@
     const field = person ? 'status' + person : 'status';
     const update = { [field]: newStatus };
     if (newStatus === 'redo-pending') update[(person ? 'redoUnlock' + person : 'redoUnlockAt')] = Date.now() + 24 * 3600 * 1000;
-    assignmentsRef.doc(a.id).update(update);
+    trackWrite(assignmentsRef.doc(a.id).update(update)).catch(err => alert('Could not update status: ' + err.message));
     if (newStatus === 'submitted') celebrate();
   }
   function celebrate() {
@@ -1053,12 +1210,15 @@
         if ((c.owner || 'shared') === o.v) opt.selected = true;
         ownerSel.appendChild(opt);
       });
-      ownerSel.onchange = () => classesRef.doc(c.id).update({ owner: ownerSel.value }).catch(err => alert('Could not update class: ' + err.message));
+      ownerSel.onchange = () => trackWrite(classesRef.doc(c.id).update({ owner: ownerSel.value })).catch(err => alert('Could not update class: ' + err.message));
       const btn = document.createElement('button'); btn.textContent = c.archived ? 'Restore' : 'Archive';
-      btn.onclick = () => classesRef.doc(c.id).update({ archived: !c.archived }).catch(err => alert('Could not update class: ' + err.message));
+      btn.onclick = () => trackWrite(classesRef.doc(c.id).update({ archived: !c.archived })).catch(err => alert('Could not update class: ' + err.message));
       const del = document.createElement('button'); del.textContent = 'Delete'; del.title = 'Delete permanently';
       del.style.borderColor = 'var(--danger)'; del.style.color = 'var(--danger)';
-      del.onclick = () => { if (confirm(`Permanently delete "${c.name}"? This won't delete any assignments already using it — they'll just show an untagged class name.`)) classesRef.doc(c.id).delete().catch(err => alert('Could not delete class: ' + err.message)); };
+      del.onclick = async () => {
+        const ok = await showConfirm('Delete class?', `Permanently delete "${c.name}"? This won't delete any assignments already using it — they'll just show an untagged class name.`, 'Delete');
+        if (ok) trackWrite(classesRef.doc(c.id).delete()).catch(err => alert('Could not delete class: ' + err.message));
+      };
       row.appendChild(sw); row.appendChild(name); row.appendChild(ownerSel); row.appendChild(btn); row.appendChild(del); wrap.appendChild(row);
     });
   }
@@ -1085,31 +1245,65 @@
   document.getElementById('addClassBtn').onclick = () => {
     const nameInput = document.getElementById('newClassName'); const name = nameInput.value.trim();
     if (!name) return;
-    classesRef.add({ name, colorHex: pickedColor, owner: pickedOwner, archived: false, order: nextOrder() })
+    trackWrite(classesRef.add({ name, colorHex: pickedColor, owner: pickedOwner, archived: false, order: nextOrder() }))
       .then(() => { nameInput.value = ''; })
       .catch(err => alert('Could not add class: ' + err.message));
   };
 
-  // ===================== ADD ASSIGNMENT =====================
+  // ===================== ADD / EDIT ASSIGNMENT =====================
   const overlay = document.getElementById('overlay');
-  document.getElementById('openAdd').onclick = () => overlay.classList.add('show');
-  document.getElementById('cancelAdd').onclick = () => overlay.classList.remove('show');
-  overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('show'); };
-  document.getElementById('saveAdd').onclick = () => {
+  const addModalTitle = document.getElementById('addModalTitle');
+  const fUnitField = document.getElementById('fUnitField');
+  const saveAddBtn = document.getElementById('saveAdd');
+  let editingId = null; // null = "add" mode; an assignment id = editing that assignment
+
+  function closeAddModal() {
+    overlay.classList.remove('show');
+    editingId = null;
+    ['fUnit','fName','fLink','fDate'].forEach(id => document.getElementById(id).value = '');
+  }
+  function openAddModal() {
+    editingId = null;
+    addModalTitle.textContent = 'New assignment';
+    saveAddBtn.textContent = 'Save';
+    fUnitField.style.display = '';
+    overlay.classList.add('show');
+  }
+  // Editing keeps things simple: the class, full name (unit prefix and all, if it has one),
+  // link, and due date can change. Status is left alone — that's controlled from the card itself.
+  function openEditModal(a) {
+    editingId = a.id;
+    addModalTitle.textContent = 'Edit assignment';
+    saveAddBtn.textContent = 'Save changes';
+    fUnitField.style.display = 'none';
+    document.getElementById('fClass').value = a.class;
+    document.getElementById('fUnit').value = '';
+    document.getElementById('fName').value = a.name;
+    document.getElementById('fLink').value = a.link || '';
+    document.getElementById('fDate').value = a.dueDate;
+    overlay.classList.add('show');
+  }
+  document.getElementById('openAdd').onclick = openAddModal;
+  document.getElementById('cancelAdd').onclick = closeAddModal;
+  overlay.onclick = (e) => { if (e.target === overlay) closeAddModal(); };
+  saveAddBtn.onclick = () => {
     const className = document.getElementById('fClass').value;
     const unit = document.getElementById('fUnit').value.trim();
     const name = document.getElementById('fName').value.trim();
     const link = document.getElementById('fLink').value.trim();
     const dueDate = document.getElementById('fDate').value;
     if (!className || !name || !dueDate) { alert('Class, assignment name, and due date are required.'); return; }
+
+    if (editingId) {
+      const patch = { class: className, name, link: link || null, dueDate, shared: classOwner(className) === 'shared' };
+      trackWrite(assignmentsRef.doc(editingId).update(patch)).then(closeAddModal).catch(err => alert('Save failed: ' + err.message));
+      return;
+    }
     const fullName = unit ? `Unit ${unit}: ${name}` : name;
     const shared = classOwner(className) === 'shared';
     const doc = { class: className, name: fullName, link: link || null, dueDate, addedBy: myName, shared, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
     if (shared) { doc.statusJayce = 'pending'; doc.statusAnna = 'pending'; } else { doc.status = 'pending'; }
-    assignmentsRef.add(doc).then(() => {
-      overlay.classList.remove('show');
-      ['fUnit','fName','fLink','fDate'].forEach(id => document.getElementById(id).value = '');
-    }).catch(err => alert('Save failed: ' + err.message));
+    trackWrite(assignmentsRef.add(doc)).then(closeAddModal).catch(err => alert('Save failed: ' + err.message));
   };
   document.getElementById('statusFilter').onchange = render;
   document.getElementById('sortOrder').onchange = render;
@@ -1182,19 +1376,20 @@
       headRow.appendChild(h3);
       if (FILL_FROM_TRAD_KEYS[dt]) {
         const fillBtn = document.createElement('button'); fillBtn.className = 'manage-btn'; fillBtn.textContent = '⇩ Fill from Trad';
-        fillBtn.onclick = () => {
+        fillBtn.onclick = async () => {
           const tradSlots = schedules[`${myName}_Trad_slots`] || {};
           const keys = FILL_FROM_TRAD_KEYS[dt];
           const hasAny = keys.some(k => tradSlots[k] && tradSlots[k].className);
           if (!hasAny) { alert('Fill in your Trad (Friday) schedule first — there\'s nothing there yet to copy.'); return; }
-          if (!confirm(`This will overwrite ${dt} hours ${keys.map(k => k.slice(1)).join(', ')} with the matching classes from your Trad schedule. Continue?`)) return;
+          const ok = await showConfirm('Overwrite from Trad?', `This will overwrite ${dt} hours ${keys.map(k => k.slice(1)).join(', ')} with the matching classes from your Trad schedule. Continue?`, 'Overwrite');
+          if (!ok) return;
           const current = schedules[slotsKey] || {};
           const updated = { ...current };
           keys.forEach(k => {
             const t = tradSlots[k];
             if (t) updated[k] = { ...(current[k] || {}), className: t.className || '', teacher: t.teacher || '' };
           });
-          schedulesRef.doc(slotsKey).set(updated).catch(err => alert('Could not save: ' + err.message));
+          trackWrite(schedulesRef.doc(slotsKey).set(updated)).catch(err => alert('Could not save: ' + err.message));
         };
         headRow.appendChild(fillBtn);
       }
@@ -1205,11 +1400,11 @@
       const saveSlot = (slotKey, patch) => {
         const current = schedules[slotsKey] || {};
         const updated = { ...current, [slotKey]: { ...(current[slotKey] || {}), ...patch } };
-        schedulesRef.doc(slotsKey).set(updated).catch(err => alert('Could not save: ' + err.message));
+        trackWrite(schedulesRef.doc(slotsKey).set(updated)).catch(err => alert('Could not save: ' + err.message));
       };
       const saveLunch = (groupKey, num) => {
         const updated = { ...lunchDoc, [groupKey]: num };
-        schedulesRef.doc(`${myName}_lunch`).set(updated).catch(err => alert('Could not save lunch choice: ' + err.message));
+        trackWrite(schedulesRef.doc(`${myName}_lunch`).set(updated)).catch(err => alert('Could not save lunch choice: ' + err.message));
       };
 
       schema.forEach(slot => {
@@ -1297,7 +1492,7 @@
       const del = document.createElement('button'); del.className = 'manage-btn'; del.textContent = 'Remove';
       del.onclick = () => {
         const updated = events.filter((_, i) => i !== idx);
-        schedulesRef.doc(`${myName}_extras`).set({ events: updated }).catch(err => alert('Could not remove: ' + err.message));
+        trackWrite(schedulesRef.doc(`${myName}_extras`).set({ events: updated })).catch(err => alert('Could not remove: ' + err.message));
       };
       row.appendChild(desc); row.appendChild(del);
       list.appendChild(row);
@@ -1375,7 +1570,7 @@
         date: freq === 'once' ? dateInput.value : null
       };
       const updated = [...personExtras(myName), ev];
-      schedulesRef.doc(`${myName}_extras`).set({ events: updated })
+      trackWrite(schedulesRef.doc(`${myName}_extras`).set({ events: updated }))
         .then(() => {
           titleInput.value = ''; startInput.value = ''; endInput.value = ''; dateInput.value = ''; startDateInput.value = '';
           dayChecks.forEach(cb => cb.checked = false);
@@ -1423,7 +1618,7 @@
   function sendChatFrom(inputEl) {
     const text = inputEl.value.trim();
     if (!text) return; inputEl.value = '';
-    messagesRef.add({ sender: myName, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
+    trackWrite(messagesRef.add({ sender: myName, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() }))
       .catch(err => alert('Message failed to send: ' + err.message));
   }
   document.getElementById('chatSend').onclick = () => sendChatFrom(document.getElementById('chatInput'));
