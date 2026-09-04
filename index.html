@@ -70,57 +70,42 @@
   html[data-theme="dark"] .dayTypeBlock,
   html[data-theme="dark"] .chatSidebar { background: #242826; }
 
-  /* Chat sidebar collapse */
-  .chatSidebar.collapsed { padding: 8px 6px; width: 42px; align-items: center; }
-  .chatSidebar.collapsed .chatSidebarHead, .chatSidebar.collapsed .chatMiniMessages, .chatSidebar.collapsed .chatMiniInputBar, .chatSidebar.collapsed .heartWrap { display: none; }
-  .chatSidebar.collapsed .chatCollapseBtn { display: flex; }
-  .chatSidebarHeader { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:4px; }
+  /* Chat sidebar + event tabs */
+  .chatSidebar, .assignGrid { position:relative; }
+  .chatSidebarHead { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:4px; }
   .chatCollapseBtn { width:26px; height:26px; border:1px solid var(--line); background:var(--card-bg); color:var(--ink-soft); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .chatSidebar.collapsed .chatSidebarHeader { margin:0; flex-direction:column; }
-  .chatSidebar.collapsed .chatSidebarTitle { display:none; }
-  .chatSidebar.collapsed .chatCollapseBtn { display:flex; }
-  @media (min-width:1151px) { .chatSidebar { transition: width .18s ease, padding .18s ease, margin .18s ease; } .assignGrid.chatCollapsed { grid-template-columns:260px 1fr 0; column-gap:12px; } .assignGrid.chatCollapsed .chatSidebar { width:34px; margin-left:-34px; padding:7px 4px; overflow:visible; } .assignGrid.chatCollapsed .chatCollapseBtn { width:30px; height:30px; } }
-
-  /* Tiny event/exam peek rail */
-  .peekRail { position:absolute; left:-12px; top:12px; z-index:8; display:flex; flex-direction:column; gap:6px; }
-  .peekIcon { width:24px; height:24px; padding:0; border:1px solid var(--line); border-radius:7px; background:var(--paper-card); color:var(--ink-soft); cursor:pointer; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
-  .peekIcon:hover { color:var(--ink); border-color:var(--plum); transform:translateX(1px); }
-  .eventsDrawer { position:absolute; left:-326px; top:0; width:310px; max-height:calc(100vh - 230px); min-height:280px; z-index:30; background:var(--paper-card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 10px 28px rgba(0,0,0,.18); padding:14px; display:none; flex-direction:column; }
-  .eventsDrawer.show { display:flex; }
+  .eventRail { position:absolute; left:-34px; top:8px; width:34px; z-index:25; display:flex; flex-direction:column; gap:4px; max-height:calc(100% - 16px); }
+  .eventPeek { width:34px; min-height:calc((100vh - 270px) / 8); max-height:86px; padding:5px 2px; border:1px solid var(--line); border-right:0; border-radius:8px 0 0 8px; background:var(--paper-card); color:var(--ink); cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.08); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; overflow:hidden; }
+  .eventPeek:hover, .eventPeek.selected { border-color:var(--plum); transform:translateX(-2px); }
+  .eventPeekIcon { font-size:16px; line-height:1; }
+  .eventPeekInfo { display:none; min-width:0; text-align:left; }
+  .eventPeekInfo b { display:block; font:600 11px Inter,sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .eventPeekInfo small { display:block; color:var(--ink-soft); font:9px 'IBM Plex Mono',monospace; white-space:nowrap; margin-top:2px; }
+  .addEventPeek { font-size:18px; font-weight:600; }
+  .eventFormDrawer { position:absolute; right:40px; top:8px; width:300px; z-index:300; background:var(--paper-card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 10px 28px rgba(0,0,0,.22); padding:14px; display:none; flex-direction:column; }
+  .eventFormDrawer.show { display:flex; }
   .eventsHead { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:10px; }
   .eventsSub { color:var(--ink-soft); font-size:10px; margin-top:2px; }
   .drawerClose { border:1px solid var(--line); background:var(--card-bg); color:var(--ink-soft); width:26px; height:26px; border-radius:50%; cursor:pointer; }
-  .eventForm { padding-bottom:10px; border-bottom:1px solid var(--line); }
-  .eventForm input, .eventForm select { min-width:0; padding:7px 8px; border:1px solid var(--line); border-radius:var(--radius); background:var(--card-bg); color:var(--ink); font:12px Inter,sans-serif; }
+  .eventForm input { min-width:0; padding:7px 8px; border:1px solid var(--line); border-radius:var(--radius); background:var(--card-bg); color:var(--ink); font:12px Inter,sans-serif; }
   #eventName { width:100%; margin-bottom:6px; }
-  .eventFormRow { display:grid; grid-template-columns:1fr auto auto; gap:5px; }
+  .eventFormRow { display:grid; grid-template-columns:1fr auto 48px; gap:5px; }
+  #eventDate { width:100%; }
+  #eventIcon { width:48px; text-align:center; }
   .eventFormRow .btn-primary { padding:7px 10px; font-size:12px; }
-  .eventList { overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding-top:10px; }
-  .eventItem { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:8px; align-items:center; padding:8px 9px; border:1px solid var(--line); border-radius:var(--radius); background:var(--card-bg); }
-  .eventItem .eventIcon { font-size:15px; }
-  .eventItem .eventTitle { font-size:12px; font-weight:600; overflow-wrap:anywhere; }
-  .eventItem .eventDate { color:var(--ink-soft); font:9px 'IBM Plex Mono',monospace; margin-top:2px; }
-  .eventDelete { border:0; background:none; color:var(--ink-soft); cursor:pointer; font-size:14px; }
-  .eventDelete:hover { color:var(--danger); }
-  .eventEmpty { color:var(--ink-soft); font:11px 'IBM Plex Mono',monospace; text-align:center; padding:24px 8px; }
-  .chatSidebar, .assignGrid { position:relative; }
-  @media (max-width:1150px) { .peekRail, .eventsDrawer { display:none !important; } }
-
-  /* Games */
-  .gamesBar { display:flex; align-items:center; gap:8px; margin:0 0 10px; }
-  .gameBtn { font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:var(--card-bg); color:var(--ink-soft); cursor:pointer; }
-  .gameBtn:hover { border-color:var(--plum); color:var(--ink); }
-  .gameModal { max-width:430px; }
-  .gameChoices { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-  .gameChoices button { padding:14px 8px; border:1px solid var(--line); border-radius:10px; background:var(--card-bg); color:var(--ink); cursor:pointer; font-size:20px; }
-  .gameChoices button:hover { border-color:var(--plum); transform:translateY(-1px); }
-  .tttBoard { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; width:240px; margin:8px auto 12px; }
-  .tttCell { aspect-ratio:1; border:1px solid var(--line); border-radius:8px; background:var(--card-bg); color:var(--ink); font-size:28px; cursor:pointer; }
-  .tttCell:disabled { cursor:default; opacity:.85; }
-  .gameStatus { text-align:center; color:var(--ink-soft); font-size:12px; min-height:18px; }
-  html[data-theme="dark"] .gameChoices button, html[data-theme="dark"] .tttCell { background:#2a2e2c; }
-
-
+  @media (min-width:1151px) {
+    .chatSidebar { transition:width .18s ease, padding .18s ease, margin .18s ease; }
+    .assignGrid.chatCollapsed { grid-template-columns:260px 1fr 0; column-gap:12px; }
+    .assignGrid.chatCollapsed .chatSidebar { width:34px; margin-left:-34px; padding:7px 0; overflow:visible; border-radius:6px 0 0 6px; }
+    .assignGrid.chatCollapsed .chatSidebarHead b, .assignGrid.chatCollapsed .chatMiniMessages, .assignGrid.chatCollapsed .chatMiniInputBar, .assignGrid.chatCollapsed .heartWrap { display:none; }
+    .assignGrid.chatCollapsed .chatCollapseBtn { width:34px; height:44px; border-radius:6px 0 0 6px; margin:0; font-size:18px; background:var(--paper-card); }
+    .assignGrid.chatCollapsed .eventRail { left:-264px; top:0; width:264px; gap:4px; }
+    .assignGrid.chatCollapsed .eventPeek { width:264px; min-height:54px; max-height:86px; padding:7px 10px; flex-direction:row; justify-content:flex-start; gap:9px; border-right:1px solid var(--line); border-left:1px solid var(--line); border-radius:7px; box-shadow:0 3px 10px rgba(0,0,0,.10); }
+    .assignGrid.chatCollapsed .eventPeekIcon { width:24px; flex:0 0 24px; text-align:center; }
+    .assignGrid.chatCollapsed .eventPeekInfo { display:block; flex:1; }
+    .assignGrid.chatCollapsed .addEventPeek { width:38px; min-height:38px; max-height:38px; padding:0; border-radius:8px; justify-content:center; margin-bottom:2px; }
+  }
+  @media (max-width:1150px) { .eventRail, .eventFormDrawer { display:none !important; } }
   /* Today widget */
   .todayCard { background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px; }
   .todayHead { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
@@ -216,8 +201,7 @@
   .overlay { display: none; position: fixed; inset: 0; background: rgba(38,43,42,0.4); align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
   .overlay.show { display: flex; }
   #overlayConfirm { z-index: 3000; }
-  #overlayGames { z-index: 2000; }
-  .modal { position: relative; z-index: 1001; background: var(--card-bg); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; overflow-y: auto; }
+.modal { position: relative; z-index: 1001; background: var(--card-bg); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; overflow-y: auto; }
   .modal h2 { font-family: 'Fraunces', serif; font-size: 20px; margin: 0 0 4px; }
   .field label { display: block; font-size: 11px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); margin-bottom: 4px; }
   .field input, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: 14px; }
@@ -375,18 +359,16 @@
 <div class="assignGrid">
 
   <aside class="chatSidebar" id="chatSidebar">
-    <div class="peekRail" aria-label="Events and exams">
-    <button class="peekIcon" id="openEvents" title="Events & exams">📅</button>
-    <button class="peekIcon" id="openExam" title="Events & exams">🎓</button>
-  </div>
-  <div class="eventsDrawer" id="eventsDrawer">
-    <div class="eventsHead"><div><b>📅 Events & exams</b><div class="eventsSub">Add anything you want to remember.</div></div><button class="drawerClose" id="closeEvents">×</button></div>
-    <div class="eventForm">
-      <input id="eventName" placeholder="Exam, event, deadline…">
-      <div class="eventFormRow"><input id="eventDate" type="date"><select id="eventType"><option value="event">Event</option><option value="exam">Exam</option></select><button class="btn-primary" id="addEvent">Add</button></div>
+    <div class="eventRail" id="eventRail" aria-label="Upcoming events">
+      <button class="eventPeek addEventPeek" id="openEventForm" title="Add event">＋</button>
     </div>
-    <div class="eventList" id="eventList"></div>
-  </div>
+    <div class="eventFormDrawer" id="eventFormDrawer" aria-hidden="true">
+      <div class="eventsHead"><div><b>＋ Add event</b><div class="eventsSub">Anything you want to remember.</div></div><button class="drawerClose" id="closeEventForm">×</button></div>
+      <div class="eventForm">
+        <input id="eventName" placeholder="Event, exam, deadline…">
+        <div class="eventFormRow"><input id="eventDate" type="datetime-local"><input id="eventIcon" maxlength="4" value="📅" aria-label="Icon"><button class="btn-primary" id="addEvent">Add</button></div>
+      </div>
+    </div>
     <div class="chatSidebarHead"><b>💬 Chat</b><button class="chatCollapseBtn" id="chatCollapseBtn" title="Hide chat">‹</button></div>
     <div class="chatMiniMessages" id="chatMiniMessages"></div>
     <div class="chatMiniInputBar">
@@ -456,7 +438,6 @@
 
 <div id="chatPanel">
   <div id="chatWrap">
-    <div class="gamesBar"><button class="gameBtn" id="openGames">🎮 Games</button><span style="font-size:10px;color:var(--ink-soft);">Play a quick game while you chat.</span></div>
     <div id="chatMessages"></div>
     <div id="chatInputBar">
       <textarea id="chatInput" rows="1" placeholder="Type a message..."></textarea>
@@ -481,19 +462,6 @@
   </div>
 </div>
 
-
-<div class="overlay" id="overlayGames">
-  <div class="modal gameModal">
-    <h2>🎮 Chat games</h2>
-    <div id="gameMenu">
-      <button class="btn-primary" id="startTtt" style="width:100%;">⭕❌ Tic-Tac-Toe</button>
-      <button class="btn-secondary" id="startRps" style="width:100%;">✊✋✌️ Rock Paper Scissors</button>
-      <p style="font-size:11px;color:var(--ink-soft);margin:2px 0 0;">Games are just for fun — moves are shared through the existing chat.</p>
-    </div>
-    <div id="gameArea" style="display:none;"></div>
-    <div class="modal-actions"><button class="btn-secondary" id="closeGames">Close</button></div>
-  </div>
-</div>
 
 <!-- Generic confirm dialog (replaces native confirm()) -->
 <div class="overlay" id="overlayConfirm">
@@ -1471,114 +1439,63 @@
   };
 
 
-  // ===================== CHAT SIDEBAR COLLAPSE =====================
-  (function setupChatCollapse() {
-    const grid = document.querySelector('.assignGrid');
-    const sidebar = document.getElementById('chatSidebar');
-    const btn = document.getElementById('chatCollapseBtn');
-    if (!grid || !sidebar || !btn) return;
-    const key = 'dook_chat_collapsed';
-    function apply(collapsed) {
-      sidebar.classList.toggle('collapsed', collapsed);
-      grid.classList.toggle('chatCollapsed', collapsed);
-      btn.textContent = collapsed ? '›' : '‹';
-      btn.title = collapsed ? 'Expand chat' : 'Collapse chat';
-    }
-    apply(localStorage.getItem(key) === '1');
-    btn.onclick = () => { const collapsed = !sidebar.classList.contains('collapsed'); localStorage.setItem(key, collapsed ? '1' : '0'); apply(collapsed); };
-  })();
-
-  // ===================== MANUAL EVENTS & EXAMS =====================
-  const eventsDrawer = document.getElementById('eventsDrawer');
-  let events = [];
-  function eventDateLabel(v) { const d=new Date(v+'T00:00:00'); return d.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
-  function renderEvents() {
-    const el=document.getElementById('eventList'); if(!el) return;
-    const today=todayStr();
-    const sorted=[...events].filter(e=>e.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
-    el.innerHTML='';
-    if(!sorted.length){ el.innerHTML='<div class="eventEmpty">Nothing scheduled yet.<br>Add an exam, deadline, birthday, event—whatever you want.</div>'; return; }
-    sorted.forEach(e=>{
-      const row=document.createElement('div'); row.className='eventItem';
-      row.innerHTML=`<div class="eventIcon">${e.type==='exam'?'🎓':'📅'}</div><div><div class="eventTitle">${escapeHtml(e.name)}</div><div class="eventDate">${eventDateLabel(e.date)}</div></div>`;
-      const del=document.createElement('button'); del.className='eventDelete'; del.textContent='×'; del.title='Delete';
-      del.onclick=()=>trackWrite(eventsRef.doc(e.id).delete()).catch(err=>alert('Could not delete event: '+err.message));
-      row.appendChild(del); el.appendChild(row);
-    });
-  }
-  function escapeHtml(v){ const d=document.createElement('div'); d.textContent=v||''; return d.innerHTML; }
-  function openEventsDrawer(){ eventsDrawer.classList.add('show'); document.getElementById('eventName').focus(); }
-  document.getElementById('openEvents').onclick=openEventsDrawer;
-  document.getElementById('openExam').onclick=openEventsDrawer;
-  document.getElementById('closeEvents').onclick=()=>eventsDrawer.classList.remove('show');
-  document.getElementById('addEvent').onclick=()=>{
-    const name=document.getElementById('eventName').value.trim(), date=document.getElementById('eventDate').value, type=document.getElementById('eventType').value;
-    if(!name||!date) return;
-    trackWrite(eventsRef.add({name,date,type,createdBy:myName,createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{document.getElementById('eventName').value='';document.getElementById('eventDate').value='';});
-  };
-
-  // ===================== TOP NAV =====================
-  const panels = { navAssignments: 'assignmentsPanel', navSchedule: 'schedulePanel', navChat: 'chatPanel' };
-  Object.keys(panels).forEach(navId => {
-    document.getElementById(navId).onclick = () => {
-      Object.keys(panels).forEach(id => {
-        document.getElementById(id).classList.toggle('active', id === navId);
-        document.getElementById(panels[id]).style.display = (id === navId) ? 'block' : 'none';
-      });
-      if (navId === 'navChat') { markChatRead(); scrollChatToBottom(); }
-    };
-  });
-
-  // ===================== COLLAPSIBLE CHAT SIDEBAR =====================
+  // ===================== COLLAPSIBLE CHAT + EVENT RAIL =====================
   const chatSidebar = document.getElementById('chatSidebar');
+  const assignGrid = document.querySelector('.assignGrid');
   const CHAT_COLLAPSED_KEY = 'dook_chat_collapsed';
   function applyChatCollapsed() {
-    const collapsed=localStorage.getItem(CHAT_COLLAPSED_KEY)==='1';
-    chatSidebar.classList.toggle('collapsed',collapsed);
-    document.getElementById('chatCollapseBtn').textContent=collapsed?'›':'‹';
-    document.getElementById('chatCollapseBtn').title=collapsed?'Show chat':'Hide chat';
+    const collapsed = localStorage.getItem(CHAT_COLLAPSED_KEY)==='1';
+    chatSidebar.classList.toggle('collapsed', collapsed);
+    assignGrid.classList.toggle('chatCollapsed', collapsed);
+    const btn=document.getElementById('chatCollapseBtn');
+    btn.textContent=collapsed?'›':'‹'; btn.title=collapsed?'Show chat':'Hide chat';
   }
-  document.getElementById('chatCollapseBtn').onclick=()=>{localStorage.setItem(CHAT_COLLAPSED_KEY,chatSidebar.classList.contains('collapsed')?'0':'1');applyChatCollapsed();};
+  document.getElementById('chatCollapseBtn').onclick=()=>{
+    localStorage.setItem(CHAT_COLLAPSED_KEY, chatSidebar.classList.contains('collapsed')?'0':'1');
+    applyChatCollapsed();
+  };
   applyChatCollapsed();
 
-
-  // ===================== CHAT GAMES =====================
-  const overlayGames = document.getElementById('overlayGames');
-  const gameMenu = document.getElementById('gameMenu');
-  const gameArea = document.getElementById('gameArea');
-  let rpsChoice = null;
-  function latestRpsPick(person) {
-    const mine = messages.filter(m => m.gameType === 'rps' && m.sender === person && m.gameChoice).slice(-1)[0];
-    if (!mine) return null;
-    const t = mine.timestamp && mine.timestamp.toDate ? mine.timestamp.toDate().getTime() : Date.now();
-    return Date.now() - t < 10 * 60 * 1000 ? mine.gameChoice : null;
+  // ===================== MANUAL EVENTS =====================
+  const eventRail = document.getElementById('eventRail');
+  const eventFormDrawer = document.getElementById('eventFormDrawer');
+  let events = [];
+  function eventTimeLabel(v) {
+    const d = new Date(v);
+    return d.toLocaleDateString([], {month:'short',day:'numeric'}) + ' · ' + d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
   }
-  function rpsOutcome(a,b) { if (!a || !b) return null; if (a===b) return '🤝 Draw!'; return ((a==='rock'&&b==='scissors')||(a==='paper'&&b==='rock')||(a==='scissors'&&b==='paper')) ? '🎉 You win!' : '😈 Anna wins!'; }
-  function updateRpsGame() {
-    const result=document.getElementById('rpsResult'); if (!result) return;
-    const mine=latestRpsPick(myName), theirs=latestRpsPick(myName==='Jayce'?'Anna':'Jayce');
-    if (mine && theirs) result.textContent=rpsOutcome(mine,theirs)+' (both picks locked in)';
-    else if (mine) result.textContent='Your pick is locked in. Waiting for the other player…';
-    else result.textContent='Pick yours below.';
+  function eventCountdown(v) {
+    const ms = new Date(v).getTime() - Date.now();
+    if (ms <= 0) return 'now';
+    const total = Math.floor(ms / 1000);
+    const days = Math.floor(total / 86400), hours = Math.floor((total % 86400) / 3600), mins = Math.floor((total % 3600) / 60), secs = total % 60;
+    return `${days}d ${hours}h ${mins}m ${secs}s`;
   }
-  function openGames() { overlayGames.classList.add('show'); gameMenu.style.display='block'; gameArea.style.display='none'; }
-  document.getElementById('openGames').onclick=openGames;
-  document.getElementById('closeGames').onclick=()=>overlayGames.classList.remove('show');
-  document.getElementById('startRps').onclick=()=>{
-    gameMenu.style.display='none'; gameArea.style.display='block';
-    gameArea.innerHTML='<h3 style="text-align:center;margin:0 0 6px;">Rock Paper Scissors</h3><p class="gameStatus">Pick yours. Your result is just between you and the person watching this chat.</p><div class="gameChoices"><button data-rps="rock">✊</button><button data-rps="paper">✋</button><button data-rps="scissors">✌️</button></div><div class="gameStatus" id="rpsResult"></div>';
-    gameArea.querySelectorAll('[data-rps]').forEach(b=>b.onclick=()=>{ rpsChoice=b.dataset.rps; const names={rock:'Rock',paper:'Paper',scissors:'Scissors'}; trackWrite(messagesRef.add({sender:myName,text:'🎮 RPS: '+names[rpsChoice],timestamp:firebase.firestore.FieldValue.serverTimestamp(), gameType:'rps', gameChoice:rpsChoice})).then(updateRpsGame); updateRpsGame(); });
+  function renderEvents() {
+    if (!eventRail) return;
+    eventRail.querySelectorAll('.eventPeek:not(.addEventPeek)').forEach(el => el.remove());
+    const upcoming = [...events].filter(e => e.date && new Date(e.date).getTime() >= Date.now()).sort((a,b) => a.date.localeCompare(b.date)).slice(0,8);
+    upcoming.forEach(e => {
+      const b = document.createElement('button'); b.className='eventPeek'; b.dataset.id=e.id; b.title=e.name;
+      b.innerHTML = `<span class="eventPeekIcon">${escapeHtml(e.icon || '📅')}</span><span class="eventPeekInfo"><b>${escapeHtml(e.name)}</b><small>${eventCountdown(e.date)}</small></span>`;
+      b.onclick = () => openEventDetail(e.id);
+      eventRail.appendChild(b);
+    });
+  }
+  function openEventDetail(id) {
+    const e = events.find(x=>x.id===id); if (!e) return;
+    const existing = eventRail.querySelector(`.eventPeek[data-id="${CSS.escape(id)}"]`); if (existing) existing.classList.toggle('selected');
+  }
+  function openEventForm() { eventFormDrawer.classList.add('show'); eventFormDrawer.setAttribute('aria-hidden','false'); document.getElementById('eventName').focus(); }
+  function closeEventForm() { eventFormDrawer.classList.remove('show'); eventFormDrawer.setAttribute('aria-hidden','true'); }
+  document.getElementById('openEventForm').onclick=openEventForm;
+  document.getElementById('closeEventForm').onclick=closeEventForm;
+  document.getElementById('addEvent').onclick=()=>{
+    const name=document.getElementById('eventName').value.trim(), date=document.getElementById('eventDate').value, icon=(document.getElementById('eventIcon').value.trim()||'📅');
+    if(!name||!date) return;
+    trackWrite(eventsRef.add({name,date,icon,createdBy:myName,createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{ document.getElementById('eventName').value=''; document.getElementById('eventDate').value=''; closeEventForm(); });
   };
-  document.getElementById('startTtt').onclick=()=>{
-    gameMenu.style.display='none'; gameArea.style.display='block';
-    let board=Array(9).fill(''); let turn='X';
-    gameArea.innerHTML='<h3 style="text-align:center;margin:0;">Tic-Tac-Toe</h3><p class="gameStatus" id="tttStatus">You are X. Take a square.</p><div class="tttBoard" id="tttBoard"></div><div style="text-align:center"><button class="btn-secondary" id="tttReset">New board</button></div>';
-    const boardEl=document.getElementById('tttBoard'), status=document.getElementById('tttStatus');
-    function win(){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return lines.find(([a,b,c])=>board[a]&&board[a]===board[b]&&board[a]===board[c]);}
-    function draw(){boardEl.innerHTML=''; board.forEach((v,i)=>{const b=document.createElement('button');b.className='tttCell';b.textContent=v;b.disabled=!!v||!!win();b.onclick=()=>{if(v||win())return;board[i]='X';turn='O';render();trackWrite(messagesRef.add({sender:myName,text:'🎮 Tic-Tac-Toe: X played '+i,timestamp:firebase.firestore.FieldValue.serverTimestamp(),gameType:'ttt',move:i}));};boardEl.appendChild(b);});}
-    function render(){draw();const w=win();status.textContent=w?'🎉 X wins!':board.every(Boolean)?'🤝 Draw!':turn==='X'?'Your turn':'Waiting for O…';}
-    document.getElementById('tttReset').onclick=()=>{board=Array(9).fill('');turn='X';render();}; render();
-  };
+  setInterval(renderEvents, 1000);
 
   // ===================== SCHEDULE EDITOR (preset hours) =====================
   // Odd hours 1/3/5/7 and Even hours 2/4/6 map onto the matching numbered hour in the Trad
