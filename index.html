@@ -310,7 +310,7 @@
   <div>
     <p class="eyebrow">me and my bub locking in</p>
     <h1>dook</h1>
-    <p id="connStatus"><span class="connDot" id="connDot"></span><span id="connStatusText">Connecting…</span> · Signed in as <b id="whoAmI"></b> <span id="signOutLink">Sign out</span></p>
+    <p id="connStatus"><span class="connDot" id="connDot"></span><span id="connStatusText">Connecting…</span><span>&nbsp;· Signed in as <b id="whoAmI"></b></span> <span id="signOutLink">Sign out</span></p>
   </div>
   <div class="themeToggle" id="themeToggle">
     <button data-theme="light" title="Light">☀️</button>
@@ -343,7 +343,7 @@
       <div class="eventsList" id="eventsList"></div>
     </aside>
     <aside class="chatSidebar" id="chatSidebar">
-      <div class="chatSidebarHead"><b>💬 Chat</b><button class="chatCollapseBtn" id="chatCollapseBtn" title="Hide chat">‹</button></div>
+      <div class="chatSidebarHead"><b>💬 Chat</b><button class="chatCollapseBtn" id="chatCollapseBtn" title="Hide chat">›</button></div>
       <div class="chatMiniMessages" id="chatMiniMessages"></div>
       <div class="chatMiniInputBar">
         <textarea id="chatMiniInput" rows="1" placeholder="Type a message..."></textarea>
@@ -1524,7 +1524,7 @@
   function applyChatCollapsed() {
     const collapsed=localStorage.getItem(CHAT_COLLAPSED_KEY)==='1';
     chatSidebar.classList.toggle('collapsed',collapsed);
-    document.getElementById('chatCollapseBtn').textContent=collapsed?'›':'‹';
+    document.getElementById('chatCollapseBtn').textContent=collapsed?'‹':'›';
     document.getElementById('chatCollapseBtn').title=collapsed?'Show chat':'Hide chat';
   }
   document.getElementById('chatCollapseBtn').onclick=()=>{localStorage.setItem(CHAT_COLLAPSED_KEY,chatSidebar.classList.contains('collapsed')?'0':'1');applyChatCollapsed();};
