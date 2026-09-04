@@ -291,6 +291,71 @@
   }
 @keyframes faviconFlash { 0%,49%{opacity:1} 50%,100%{opacity:.15} }
   body.hasUnread .chatSidebarHead b { animation: faviconFlash 1s steps(1,end) infinite; }
+
+  /* ===================== PIXELS GAME ===================== */
+  .pixelsWrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .pixelsCard { background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .pixelsHead { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .pixelsHead b { font-family: 'Fraunces', serif; font-size: 18px; }
+  .pixelsScores { display: flex; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+  .pixelsScores span { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); }
+  .pixelsScores .jayce { color: var(--jayce); border-color: var(--jayce); }
+  .pixelsScores .anna { color: var(--anna); border-color: var(--anna); }
+  .pixelsStatus { font-size: 14px; color: var(--ink); line-height: 1.45; }
+  .pixelsStatus .who { font-weight: 600; }
+  .pixelsStatus .sub { color: var(--ink-soft); font-size: 12.5px; margin-top: 4px; }
+  .pixelsRound { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); }
+
+  .pixelsWords { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pixelsWordBtn { flex: 1 1 0; min-width: 130px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; padding: 16px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg); color: var(--ink); cursor: pointer; text-transform: capitalize; }
+  .pixelsWordBtn:hover { border-color: var(--plum); background: var(--paper-card); }
+
+  .pixelsCanvasWrap { display: flex; justify-content: center; }
+  .pixelsCanvas { display: grid; grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(16, 1fr); gap: 1px; width: 100%; max-width: 420px; aspect-ratio: 1 / 1; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; touch-action: none; user-select: none; }
+  .pixelsCell { width: 100%; aspect-ratio: 1 / 1; background: #fff; cursor: pointer; }
+  html[data-theme="dark"] .pixelsCell { background: #3a3f3c; }
+  .pixelsCell:active { opacity: 0.85; }
+
+  .pixelsDrawn { display: grid; grid-template-columns: repeat(16, 16px); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; padding: 1px; }
+  .pixelsDrawn div { width: 16px; height: 16px; background: #fff; }
+  html[data-theme="dark"] .pixelsDrawn div { background: #3a3f3c; }
+
+  .pixelsToolRow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pixelsTool { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); color: var(--ink-soft); cursor: pointer; }
+  .pixelsTool.active { background: var(--ink); color: var(--paper-card); border-color: var(--ink); }
+  .pixelsPalette { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .pixelsColor { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; flex-shrink: 0; }
+  .pixelsColor.active { border-color: var(--ink); transform: scale(1.08); }
+  .pixelsColor.cust { background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red); }
+
+  .pixelsActions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .pixelsBtn { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: var(--radius); border: none; cursor: pointer; }
+  .pixelsBtn.primary { background: var(--plum); color: #fff; }
+  .pixelsBtn.primary:hover { background: var(--plum-dark); }
+  .pixelsBtn.secondary { background: var(--card-bg); color: var(--ink); border: 1px solid var(--line); }
+  .pixelsBtn:disabled { opacity: 0.5; cursor: default; }
+
+  .pixelsGuessRow { display: flex; gap: 8px; }
+  .pixelsGuessRow input { flex: 1; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--card-bg); color: var(--ink); }
+  .pixelsGuessRow button { flex-shrink: 0; }
+
+  .pixelsResult { font-size: 13px; padding: 9px 12px; border-radius: var(--radius); }
+  .pixelsResult.ok { background: rgba(63,122,78,0.14); color: var(--ok); }
+  .pixelsResult.no { background: rgba(168,60,60,0.14); color: var(--danger); }
+  .pixelsResult .word { font-weight: 600; text-transform: capitalize; }
+
+  .pixelsHistory { display: flex; flex-direction: column; gap: 8px; }
+  .pixelsHistRow { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
+  .pixelsHistRow .pmini { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+  .pixelsHistRow .pmini div { width: 7px; height: 7px; background: #fff; }
+  .pixelsHistRow .what { flex: 1; min-width: 0; }
+  .pixelsHistRow .by { color: var(--ink-soft); }
+
+  .pixelsPlayerTag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #fff; }
+  .pixelsPlayerTag.jayce { background: var(--jayce); }
+  .pixelsPlayerTag.anna { background: var(--anna); }
+
+  .pixelsErr { color: var(--danger); font-size: 12px; }
 </style>
 </head>
 <body>
@@ -323,6 +388,7 @@
   <button class="active" id="navAssignments">📋 Assignments</button>
   <button id="navSchedule">🗓 Schedule</button>
   <button id="navChat">💬 Chat</button>
+  <button id="navPixels">🎨 Pixels</button>
 </div>
 
 <div id="assignmentsPanel">
@@ -421,6 +487,12 @@
     <div class="heartWrap">
       <button class="heartBtn" id="heartBtnMobile"><span class="heartFill" id="heartFillMobile"></span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
     </div>
+  </div>
+</div>
+
+<div id="pixelsPanel" style="display:none;">
+  <div class="container">
+    <div class="pixelsWrap" id="pixelsWrap"></div>
   </div>
 </div>
 
@@ -758,7 +830,7 @@
     return s === 'yes' || s === 'y' || s === 'true' || s === '1';
   }
 
-  let db, assignmentsRef, classesRef, messagesRef, schedulesRef, overridesRef, countdownEventsRef;
+  let db, assignmentsRef, classesRef, messagesRef, schedulesRef, overridesRef, countdownEventsRef, pixelsGameRef;
   const connStatus = document.getElementById('connStatusText');
   const connDot = document.getElementById('connDot');
 
@@ -790,6 +862,7 @@
     });
   }
   let assignments = [], classes = [], messages = [], countdownEvents = [];
+  let pixelsGameState = null; // Pixels drawing game state document (or null if none)
   let schedules = {}; // key: `${person}_${dayType}` -> {periods:[{time,className}]}
   let todayOverride = null; // dayType string or null
   let classFilterMode = 'shared'; // overwritten to the signed-in person's own name once they log in
@@ -820,6 +893,7 @@
     schedulesRef = db.collection("schedules");
     overridesRef = db.collection("dayOverrides");
     countdownEventsRef = db.collection("countdownEvents");
+    pixelsGameRef = db.collection("pixelsGame");
 
     classesRef.onSnapshot((snap) => {
       classes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -859,6 +933,18 @@
       countdownEvents = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.eventAt - b.eventAt);
       renderCountdownEvents();
     }, (err) => console.error('Countdown events listener error:', err));
+
+    pixelsGameRef.doc('currentGame').onSnapshot((doc) => {
+      if (doc.exists) {
+        document.getElementById('navPixels').classList.add('active');
+        pixelsGameState = doc.data();
+        renderPixelsGame();
+      } else {
+        document.getElementById('navPixels').classList.remove('active');
+        pixelsGameState = null;
+        renderPixelsGame();
+      }
+    }, (err) => console.error('Pixels game listener error:', err));
 
     setInterval(checkAutoTransitions, 60000);
     setInterval(renderTodayWidget, 30000); // keeps the progress bar advancing without waiting for a data change
@@ -1507,7 +1593,7 @@
   };
 
   // ===================== TOP NAV =====================
-  const panels = { navAssignments: 'assignmentsPanel', navSchedule: 'schedulePanel', navChat: 'chatPanel' };
+  const panels = { navAssignments: 'assignmentsPanel', navSchedule: 'schedulePanel', navChat: 'chatPanel', navPixels: 'pixelsPanel' };
   Object.keys(panels).forEach(navId => {
     document.getElementById(navId).onclick = () => {
       Object.keys(panels).forEach(id => {
@@ -1515,6 +1601,7 @@
         document.getElementById(panels[id]).style.display = (id === navId) ? 'block' : 'none';
       });
       if (navId === 'navChat') { markChatRead(); scrollChatToBottom(); }
+      if (navId === 'navPixels') renderPixelsGame();
     };
   });
 
@@ -1858,7 +1945,468 @@
   setupHeartButton(document.getElementById('heartBtnDesktop'), document.getElementById('heartFillDesktop'));
   setupHeartButton(document.getElementById('heartBtnMobile'), document.getElementById('heartFillMobile'));
 
-  // ===================== BOOT =====================
+  // ===================== PIXELS GAME =====================
+  // Turn-based pixel drawing game. One Firestore doc ("currentGame") holds all state:
+  // the current drawer, the secret word, the 16x16 pixel map, scores, and the active round.
+  // It's fully async: either partner can open the Pixels tab whenever and the UI adapts to
+  // whatever phase the game is in. The `drawer` field decides whose turn it is to act, so
+  // Jayce and Anna can safely work at totally different times of day.
+  const PIXEL_WORDS = [
+    'cat','dog','sun','moon','star','tree','house','car','boat','fish','flower','heart',
+    'bird','rainbow','pizza','burger','ice cream','cake','apple','banana',
+    'snowman','castle','rocket','butterfly','mountain','umbrella','book','clock','cup',
+    'hat','shoe','piano','guitar'
+  ];
+  const PIXEL_PALETTE = ['#000000','#ffffff','#e5484d','#ff8f3c','#ffd43b','#2f9e44','#38b6a1','#1c7ed6','#7048e8','#c2255c','#e6a8d7','#a52a2a'];
+  const PIXEL_FILL = '#e5484d'; // a clearly non-white accent used by the fill tool
+
+  let pixelsDraft = null;      // working copy of the 256-pixel array while drawing
+  let pixelsTool = 'paint';    // 'paint' | 'fill' | 'erase'
+  let pixelsColor = '#000000';
+  let pixelsPainting = false;
+  let pixelsCustomHex = '#000000';
+  let pixelsLastResult = null; // { ok, word } feedback for the guesser.
+
+  function otherP(person) { return person === 'Jayce' ? 'Anna' : 'Jayce'; }
+
+  function pixelBlankArray() { return new Array(256).fill('#ffffff'); }
+  function pixelsCellIdx(row, col) { return row * 16 + col; }
+
+  function pixelsIsDrawerTurn(gs) {
+    if (!gs) return false;
+    return gs.phase === 'choosing' || gs.phase === 'drawing';
+  }
+  function pixelsIsGuesserTurn(gs) {
+    if (!gs) return false;
+    return gs.phase === 'guessing';
+  }
+
+  function renderPixelsGame() {
+    const wrap = document.getElementById('pixelsWrap');
+    if (!wrap) return;
+    if (!pixelsGameState) {
+      wrap.innerHTML = '';
+      wrap.appendChild(pixelsNoGameEl());
+      return;
+    }
+    const gs = pixelsGameState;
+    const card = document.createElement('div'); card.className = 'pixelsCard';
+
+    // Header: title + scoreboard + round
+    const head = document.createElement('div'); head.className = 'pixelsHead';
+    const title = document.createElement('b'); title.textContent = '🎨 Pixels';
+    head.appendChild(title);
+    const sc = document.createElement('div'); sc.className = 'pixelsScores';
+    [['Jayce', gs.scores.Jayce], ['Anna', gs.scores.Anna]].forEach(([p, n]) => {
+      const s = document.createElement('span'); s.className = p.toLowerCase(); s.textContent = `${p}: ${n}`;
+      sc.appendChild(s);
+    });
+    head.appendChild(sc);
+    card.appendChild(head);
+    const rnd = document.createElement('div'); rnd.className = 'pixelsRound'; rnd.textContent = `Round ${gs.round}`;
+    card.appendChild(rnd);
+
+    let body;
+    if (pixelsIsDrawerTurn(gs) && gs.drawer === myName) {
+      // It's my turn to draw (or choose a word).
+      body = pixelsDrawerUI(gs);
+    } else if (pixelsIsGuesserTurn(gs) && gs.guesser === myName) {
+      // It's my turn to guess what the other drew.
+      body = pixelsGuesserUI(gs);
+    } else if (pixelsIsDrawerTurn(gs)) {
+      body = pixelsWaitingOnDrawer(gs);
+    } else if (pixelsIsGuesserTurn(gs)) {
+      body = pixelsWaitingOnGuesser(gs);
+    } else if (gs.phase === 'complete') {
+      body = pixelsCompleteUI(gs);
+    } else {
+      // fallback for any unexpected phase
+      body = document.createElement('div');
+      body.className = 'pixelsStatus';
+      body.textContent = 'The game is in an unknown state.';
+    }
+
+    if (body) card.appendChild(body);
+    wrap.innerHTML = '';
+    wrap.appendChild(card);
+  }
+
+  // --- No game in progress: offer to start one ---
+  function pixelsNoGameEl() {
+    const card = document.createElement('div'); card.className = 'pixelsCard';
+    const title = document.createElement('b'); title.textContent = '🎨 Pixels';
+    card.appendChild(title);
+    const st = document.createElement('div'); st.className = 'pixelsStatus'; st.style.marginTop = '8px';
+    st.textContent = 'No game in progress right now.';
+    card.appendChild(st);
+    const sub = document.createElement('div'); sub.className = 'pixelsStatus sub'; sub.style.marginBottom = '12px';
+    sub.textContent = 'Pixels is a turn-by-turn drawing game — start a round and take turns drawing and guessing!';
+    card.appendChild(sub);
+    const row = document.createElement('div'); row.className = 'pixelsActions';
+    const startBtn = document.createElement('button'); startBtn.className = 'pixelsBtn primary'; startBtn.textContent = 'Start a game!';
+    startBtn.onclick = pixelsStartNewGame;
+    row.appendChild(startBtn);
+    card.appendChild(row);
+    return card;
+  }
+
+  async function pixelsStartNewGame() {
+    // Fresh word bank. First drawer is chosen at random so no one always starts.
+    const shuffled = [...PIXEL_WORDS].sort(() => Math.random() - 0.5);
+    const firstDrawer = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
+    const gs = {
+      phase: 'choosing',
+      drawer: firstDrawer,
+      word: null,
+      pixels: pixelBlankArray(),
+      round: 1,
+      scores: { Jayce: 0, Anna: 0 },
+      usedWords: shuffled,          // consumed one-by-one as words get picked
+      history: [],
+      startedBy: myName,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    try {
+      await trackWrite(pixelsGameRef.doc('currentGame').set(gs));
+    } catch (err) {
+      alert('Could not start the game: ' + err.message);
+    }
+  }
+
+  // --- It's my turn and I need to choose a word ---
+  function pixelsDrawerUI(gs) {
+    const wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '14px';
+
+    if (gs.phase === 'choosing') {
+      const st = document.createElement('div'); st.className = 'pixelsStatus';
+      st.innerHTML = `It's <b>your</b> turn! Pick a word to draw:`;
+      wrap.appendChild(st);
+      const words = gs.usedWords.slice(0, 3);
+      const row = document.createElement('div'); row.className = 'pixelsWords';
+      words.forEach(w => {
+        const b = document.createElement('button'); b.className = 'pixelsWordBtn'; b.textContent = w;
+        b.onclick = () => pixelsChooseWord(gs, w);
+        row.appendChild(b);
+      });
+      wrap.appendChild(row);
+      return wrap;
+    }
+
+    // phase === 'drawing' : show the canvas + tools + submit
+    pixelsDraft = Array.isArray(gs.pixels) && gs.pixels.length === 256 ? gs.pixels.slice() : pixelBlankArray();
+    const st = document.createElement('div'); st.className = 'pixelsStatus';
+    st.innerHTML = `Draw <b><span class="pixelsResult word">${gs.word}</span></b> on the 16×16 grid. When you're done, hit <b>Submit drawing</b> and "${otherP(myName)}" will guess it!`;
+    wrap.appendChild(st);
+
+    const cw = document.createElement('div'); cw.className = 'pixelsCanvasWrap';
+    cw.appendChild(pixelsBuildCanvas(gs));
+    wrap.appendChild(cw);
+
+    // Tools + palette
+    const tools = document.createElement('div'); tools.className = 'pixelsToolRow';
+    const makeTool = (label, name) => {
+      const b = document.createElement('button'); b.className = 'pixelsTool' + (pixelsTool === name ? ' active' : ''); b.textContent = label;
+      b.onclick = () => { pixelsTool = name; tools.querySelectorAll('button').forEach(x => x.classList.remove('active')); b.classList.add('active'); };
+      return b;
+    };
+    tools.appendChild(makeTool('🖌 Paint', 'paint'));
+    tools.appendChild(makeTool('🪣 Fill', 'fill'));
+    tools.appendChild(makeTool('🧽 Erase', 'erase'));
+    wrap.appendChild(tools);
+
+    const pal = document.createElement('div'); pal.className = 'pixelsPalette';
+    PIXEL_PALETTE.forEach(hex => {
+      const c = document.createElement('button'); c.className = 'pixelsColor' + (pixelsColor === hex ? ' active' : ''); c.style.background = hex; c.title = hex;
+      c.onclick = () => { pixelsColor = hex; pixelsTool = 'paint'; pal.querySelectorAll('button').forEach(x => x.classList.remove('active')); c.classList.add('active'); tools.querySelectorAll('button').forEach(x => x.classList.remove('active')); tools.querySelectorAll('button')[0].classList.add('active'); };
+      pal.appendChild(c);
+    });
+    const cust = document.createElement('button'); cust.className = 'pixelsColor cust' + (PIXEL_PALETTE.indexOf(pixelsColor) === -1 ? ' active' : ''); cust.title = 'Custom color';
+    cust.onclick = () => {
+      const inp = document.createElement('input'); inp.type = 'color'; inp.value = pixelsCustomHex; inp.style.position = 'absolute'; inp.style.opacity = '0';
+      document.body.appendChild(inp);
+      inp.onchange = () => { pixelsCustomHex = inp.value; pixelsColor = inp.value; pixelsTool = 'paint'; pal.querySelectorAll('button').forEach(x => x.classList.remove('active')); cust.classList.add('active'); };
+      inp.click();
+    };
+    pal.appendChild(cust);
+    wrap.appendChild(pal);
+
+    // Actions: clear + submit
+    const actions = document.createElement('div'); actions.className = 'pixelsActions';
+    const clearBtn = document.createElement('button'); clearBtn.className = 'pixelsBtn secondary'; clearBtn.textContent = 'Clear canvas';
+    clearBtn.onclick = () => { pixelsDraft = pixelBlankArray(); renderPixelsGame(); };
+    actions.appendChild(clearBtn);
+    const submitBtn = document.createElement('button'); submitBtn.className = 'pixelsBtn primary'; submitBtn.textContent = 'Submit drawing';
+    submitBtn.onclick = () => pixelsSubmitDrawing(gs);
+    actions.appendChild(submitBtn);
+    wrap.appendChild(actions);
+
+    return wrap;
+  }
+
+  function pixelsBuildCanvas(gs) {
+    const canvas = document.createElement('div'); canvas.className = 'pixelsCanvas';
+    // Paint a given cell (row,col) with the current tool.
+    function paintCell(row, col) {
+      const i = pixelsCellIdx(row, col);
+      if (pixelsTool === 'erase') { pixelsDraft[i] = '#ffffff'; return; }
+      if (pixelsTool === 'fill') {
+        const target = pixelsDraft[i];
+        // Avoid infinite loops when filling with the same color or hitting an edge case.
+        if (target === pixelsColor) return;
+        const stack = [[row, col]];
+        const seen = new Array(256).fill(false);
+        while (stack.length) {
+          const [r, c] = stack.pop();
+          const idx = pixelsCellIdx(r, c);
+          if (r < 0 || r > 15 || c < 0 || c > 15 || seen[idx]) continue;
+          seen[idx] = true;
+          if (pixelsDraft[idx] !== target) continue;
+          pixelsDraft[idx] = pixelsColor;
+          stack.push([r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]);
+        }
+        return;
+      }
+      pixelsDraft[i] = pixelsColor; // paint
+    }
+
+    for (let row = 0; row < 16; row++) {
+      for (let col = 0; col < 16; col++) {
+        const cell = document.createElement('div'); cell.className = 'pixelsCell';
+        cell.style.background = pixelsDraft[pixelsCellIdx(row, col)];
+        cell.dataset.row = row; cell.dataset.col = col;
+        cell.addEventListener('mousedown', (e) => { e.preventDefault(); pixelsPainting = true; paintCell(row, col); cell.style.background = pixelsDraft[pixelsCellIdx(row, col)]; });
+        cell.addEventListener('mouseenter', () => { if (pixelsPainting) { paintCell(row, col); cell.style.background = pixelsDraft[pixelsCellIdx(row, col)]; } });
+      }
+    }
+    const stopPaint = () => { pixelsPainting = false; };
+    canvas.addEventListener('mouseup', stopPaint);
+    canvas.addEventListener('mouseleave', stopPaint);
+    canvas.addEventListener('mousemove', (e) => { e.preventDefault(); });
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault(); pixelsPainting = true;
+      const t = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      if (t && t.classList.contains('pixelsCell')) { const r = +t.dataset.row, c = +t.dataset.col; paintCell(r, c); t.style.background = pixelsDraft[pixelsCellIdx(r, c)]; }
+    }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!pixelsPainting) return;
+      const t = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      if (t && t.classList.contains('pixelsCell')) { const r = +t.dataset.row, c = +t.dataset.col; paintCell(r, c); t.style.background = pixelsDraft[pixelsCellIdx(r, c)]; }
+    }, { passive: false });
+    canvas.addEventListener('touchend', () => { pixelsPainting = false; });
+    return canvas;
+  }
+
+  async function pixelsChooseWord(gs, word) {
+    // Mark the word as used (move it out of the pending bank) and advance to drawing.
+    const remaining = gs.usedWords.filter(w => w !== word);
+    const patch = { word, phase: 'drawing', usedWords: remaining, drawer: myName, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    try { await trackWrite(pixelsGameRef.doc('currentGame').update(patch)); }
+    catch (err) { alert('Could not choose that word: ' + err.message); }
+  }
+
+  async function pixelsSubmitDrawing(gs) {
+    // Save the current draft as the official drawing, advance to guessing, notify the partner in chat.
+    const pixels = pixelsDraft.slice();
+    const patch = {
+      pixels,
+      phase: 'guessing',
+      guesser: otherP(myName),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    try {
+      await trackWrite(pixelsGameRef.doc('currentGame').update(patch));
+      // Post a chat notification so the partner sees the drawing is ready even if they're not looking.
+      messagesRef.add({ sender: '[Pixels]', text: `🎨 ${myName} just submitted a Pixels drawing! Head to the Pixels tab to guess it.`, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
+        .catch(err => console.error('Pixels chat notification failed:', err));
+    } catch (err) {
+      alert('Could not submit drawing: ' + err.message);
+    }
+  }
+
+  // --- Guesser's turn: show the drawing + guess input ---
+  function pixelsGuesserUI(gs) {
+    const wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '14px';
+    const st = document.createElement('div'); st.className = 'pixelsStatus';
+    st.innerHTML = `${gs.drawer} drew a picture. Can you guess what it is?`;
+    wrap.appendChild(st);
+
+    const dw = document.createElement('div'); dw.className = 'pixelsCanvasWrap';
+    dw.appendChild(pixelsBuildDrawnPreview(gs.pixels));
+    wrap.appendChild(dw);
+
+    const row = document.createElement('div'); row.className = 'pixelsGuessRow';
+    const input = document.createElement('input'); input.type = 'text'; input.placeholder = 'Your guess...'; input.autocomplete = 'off';
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doGuess(); });
+    const btn = document.createElement('button'); btn.className = 'pixelsBtn primary'; btn.textContent = 'Guess';
+    function doGuess() {
+      const val = input.value.trim().toLowerCase();
+      if (!val) return;
+      pixelsSubmitGuess(gs, val);
+    }
+    btn.onclick = doGuess;
+    row.appendChild(input); row.appendChild(btn);
+    wrap.appendChild(row);
+
+    // Show feedback from the last attempt (correct / wrong).
+    if (gs.lastGuessResult) {
+      const res = document.createElement('div'); res.className = 'pixelsResult ' + (gs.lastGuessResult.ok ? 'ok' : 'no');
+      if (gs.lastGuessResult.ok) res.innerHTML = `🎉 Correct! The word was <span class="word">${gs.word}</span>!`;
+      else res.textContent = `Not quite. "${gs.lastGuessResult.guess}" isn't it — try again! (${gs.lastGuessResult.tries} tries so far)`;
+      wrap.appendChild(res);
+    }
+
+    return wrap;
+  }
+
+  function pixelsBuildDrawnPreview(pixels) {
+    const grid = Array.isArray(pixels) && pixels.length === 256 ? pixels : pixelBlankArray();
+    const g = document.createElement('div'); g.className = 'pixelsDrawn';
+    for (let i = 0; i < 256; i++) {
+      const cell = document.createElement('div'); cell.style.background = grid[i]; g.appendChild(cell);
+    }
+    return g;
+  }
+
+  async function pixelsSubmitGuess(gs, guess) {
+    const normalized = guess.trim().toLowerCase();
+    const isCorrect = normalized === gs.word.toLowerCase();
+    const tries = (gs.guessTries || 0) + 1;
+    let patch;
+    if (isCorrect) {
+      // Guess is right: score the guesser, mark the round complete, remember it in history.
+      const scores = { ...gs.scores, [myName]: (gs.scores[myName] || 0) + 1 };
+      const history = Array.isArray(gs.history) ? gs.history : [];
+      const entry = { drawer: gs.drawer, word: gs.word, pixels: gs.pixels, round: gs.round, winner: myName };
+      history.push(entry);
+      if (history.length > 10) history.splice(0, history.length - 10);
+      patch = {
+        phase: 'complete',
+        scores,
+        history,
+        lastGuessResult: { ok: true, guess, tries },
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+    } else {
+      patch = {
+        guessTries: tries,
+        lastGuessResult: { ok: false, guess, tries },
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+    }
+    try { await trackWrite(pixelsGameRef.doc('currentGame').update(patch)); }
+    catch (err) { alert('Could not submit guess: ' + err.message); }
+  }
+
+  // --- Waiting states (it's not your turn) ---
+  function pixelsWaitingOnDrawer(gs) {
+    const wrap = document.createElement('div');
+    const tag = document.createElement('span'); tag.className = 'pixelsPlayerTag ' + gs.drawer.toLowerCase(); tag.textContent = gs.drawer;
+    const st = document.createElement('div'); st.className = 'pixelsStatus'; st.style.marginTop = '8px';
+    if (gs.phase === 'choosing') st.innerHTML = `It's ${gs.drawer}'s turn to pick a word and draw. Check back soon!`;
+    else st.innerHTML = `It's ${gs.drawer}'s turn to draw!`;
+    wrap.appendChild(tag);
+    wrap.appendChild(st);
+    return wrap;
+  }
+
+  function pixelsWaitingOnGuesser(gs) {
+    const wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '12px';
+    const st = document.createElement('div'); st.className = 'pixelsStatus';
+    st.innerHTML = `${gs.drawer} submitted their drawing. Waiting for ${gs.guesser} to guess it.`;
+    wrap.appendChild(st);
+    // Peek at the drawing (it's fine to show it — only the guess/final reveal is gated).
+    const dw = document.createElement('div'); dw.className = 'pixelsCanvasWrap';
+    dw.appendChild(pixelsBuildDrawnPreview(gs.pixels));
+    wrap.appendChild(dw);
+    return wrap;
+  }
+
+  function pixelsCompleteUI(gs) {
+    const wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '14px';
+    const lr = gs.lastGuessResult;
+    const st = document.createElement('div'); st.className = 'pixelsResult ok';
+    st.innerHTML = `🎉 ${gs.guesser} guessed it! The word was <span class="word">${gs.word}</span>.`;
+    wrap.appendChild(st);
+
+    // Winner determines who draws next (swap roles so turns alternate).
+    const next = document.createElement('div'); next.className = 'pixelsStatus';
+    next.innerHTML = `Next round: <b>${gs.guesser}</b> draws!`; // the person who just guessed becomes the drawer
+    wrap.appendChild(next);
+
+    const actions = document.createElement('div'); actions.className = 'pixelsActions';
+    const nextBtn = document.createElement('button'); nextBtn.className = 'pixelsBtn primary'; nextBtn.textContent = 'Start next round';
+    nextBtn.onclick = () => pixelsStartNextRound(gs);
+    actions.appendChild(nextBtn);
+    const restartBtn = document.createElement('button'); restartBtn.className = 'pixelsBtn secondary'; restartBtn.textContent = 'New game (reset scores)';
+    restartBtn.onclick = () => pixelsRestartGame();
+    actions.appendChild(restartBtn);
+    wrap.appendChild(actions);
+
+    // Recent history (small thumbnails)
+    if (Array.isArray(gs.history) && gs.history.length) {
+      const hd = document.createElement('div'); hd.className = 'pixelsHistory'; hd.style.marginTop = '6px';
+      const hlabel = document.createElement('div'); hlabel.className = 'pixelsStatus sub'; hlabel.textContent = 'Past rounds';
+      hd.appendChild(hlabel);
+      [...gs.history].reverse().slice(0, 5).forEach(h => {
+        const hr = document.createElement('div'); hr.className = 'pixelsHistRow';
+        const mini = document.createElement('div'); mini.className = 'pmini';
+        (Array.isArray(h.pixels) ? h.pixels : pixelBlankArray()).forEach(px => { const d = document.createElement('div'); d.style.background = px; mini.appendChild(d); });
+        const what = document.createElement('div'); what.className = 'what';
+        what.textContent = `R${h.round} · ${h.drawer} drew "${h.word}" · ${h.winner} guessed it`;
+        hr.appendChild(mini); hr.appendChild(what);
+        hd.appendChild(hr);
+      });
+      wrap.appendChild(hd);
+    }
+
+    return wrap;
+  }
+
+  async function pixelsStartNextRound(gs) {
+    // Swap drawer to the person who just guessed, keep scores, roll a fresh word bank if it's depleted.
+    let usedWords = Array.isArray(gs.usedWords) ? gs.usedWords : [];
+    if (!usedWords.length) usedWords = [...PIXEL_WORDS].sort(() => Math.random() - 0.5);
+    const patch = {
+      phase: 'choosing',
+      drawer: gs.guesser,               // the new drawer is whoever just guessed
+      word: null,
+      pixels: pixelBlankArray(),
+      round: (gs.round || 1) + 1,
+      usedWords,
+      guessTries: 0,
+      lastGuessResult: null,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    try { await trackWrite(pixelsGameRef.doc('currentGame').update(patch)); }
+    catch (err) { alert('Could not start the next round: ' + err.message); }
+  }
+
+  async function pixelsRestartGame() {
+    const ok = await showConfirm('Restart Pixels?', 'This resets the scores and starts a brand-new game with a fresh word bank.', 'Restart');
+    if (!ok) return;
+    const shuffled = [...PIXEL_WORDS].sort(() => Math.random() - 0.5);
+    const firstDrawer = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
+    const gs = {
+      phase: 'choosing',
+      drawer: firstDrawer,
+      word: null,
+      pixels: pixelBlankArray(),
+      round: 1,
+      scores: { Jayce: 0, Anna: 0 },
+      usedWords: shuffled,
+      history: [],
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    try { await trackWrite(pixelsGameRef.doc('currentGame').set(gs)); }
+    catch (err) { alert('Could not restart the game: ' + err.message); }
+  }
+
+  // ===================== AUTO-LOGIN =====================
+  // Restore the signed-in user from localStorage so reloads/opening a new tab at a
+  // different time of day keep you signed in (this also is what lets Pixels know who you
+  // are when you come back later). Only auto-login if the stored name is a valid partner.
   const savedUser = localStorage.getItem(SESSION_KEY);
   if (savedUser === 'Jayce' || savedUser === 'Anna') { myName = savedUser; showApp(); }
 </script>
