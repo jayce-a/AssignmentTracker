@@ -60,7 +60,14 @@
   .scheduleSidebar .todayGrid { display: block; }
   .scheduleSidebar .personCol { margin-bottom: 18px; }
   .assignMain { height: 100%; min-height: 0; min-width: 0; overflow-y: auto; padding-right: 2px; }
-  .chatSidebar { height: 100%; min-height: 0; min-width: 0; overflow: hidden; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; }
+
+  /* Chat column: the events/countdowns panel lives underneath the chat panel, filling the
+     same 260px-wide column. The chat panel normally covers it completely; collapsing chat
+     shrinks it down to a slim tab pinned to the right edge of the column (the edge touching
+     the assignment list), which uncovers the countdowns panel on the left side of the column
+     instead of leaving empty space. */
+  .chatColumn { position: relative; height: 100%; min-height: 0; min-width: 0; }
+  .chatSidebar { position: absolute; top: 0; right: 0; height: 100%; width: 100%; z-index: 2; min-height: 0; min-width: 0; overflow: hidden; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; transition: width 0.22s ease, padding 0.22s ease; }
   .chatSidebar b { font-size: 13px; flex-shrink: 0; }
   .chatMiniMessages { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 5px; padding: 8px 0; }
   .chatMiniMessages .msg-row { max-width: 100%; min-width: 0; }
@@ -70,11 +77,44 @@
   .chatMiniInputBar { display: flex; gap: 5px; }
   .chatMiniInputBar textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 14px; padding: 6px 10px; font-size: 12px; font-family: inherit; max-height: 56px; }
   .chatMiniInputBar button { border: none; background: var(--plum); color: #fff; border-radius: 50%; width: 30px; height: 30px; font-size: 13px; cursor: pointer; flex-shrink: 0; }
+
+  /* Countdowns panel — sits behind the chat panel, revealed when chat is collapsed. */
+  /* Right padding is wider than the rest: it permanently reserves room for the collapsed
+     chat tab (42px) that overlaps this panel's right edge, so no content ever sits under it. */
+  .eventsSidebar { position: absolute; inset: 0; z-index: 1; min-height: 0; min-width: 0; overflow: hidden; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 50px 12px 12px; display: flex; flex-direction: column; }
+  .eventsSidebarHead { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; }
+  .eventsSidebarHead b { font-size: 13px; }
+  .eventsAddBtn { font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); border-radius: 999px; width: 22px; height: 22px; cursor: pointer; }
+  .eventsAddBtn:hover { border-color: var(--plum); color: var(--plum); }
+  .eventsAddForm { display: flex; flex-direction: column; gap: 6px; padding: 8px 0 10px; border-bottom: 1px dashed var(--line); margin-bottom: 8px; flex-shrink: 0; }
+  .eventsAddForm .row { display: flex; gap: 6px; }
+  .eventsAddForm input { border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; font-size: 12px; font-family: 'Inter', sans-serif; background: var(--card-bg); color: var(--ink); min-width: 0; }
+  .eventsAddForm input#eventIconInput { width: 40px; flex: 0 0 40px; text-align: center; padding: 6px 2px; }
+  .eventsAddForm input#eventNameInput { flex: 1; min-width: 0; }
+  .eventsAddForm button { font-family: 'Inter', sans-serif; font-size: 12px; padding: 6px; border: none; border-radius: var(--radius); background: var(--plum); color: #fff; font-weight: 600; cursor: pointer; }
+  .eventsList { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 2px 0; }
+  .eventsEmpty { font-size: 11.5px; color: var(--ink-soft); font-style: italic; padding: 6px 2px; }
+  .eventRow { position: relative; flex-shrink: 0; background: var(--card-bg); border: 1px solid var(--line); border-radius: 999px; padding: 7px 18px 7px 7px; display: flex; align-items: center; gap: 9px; }
+  .eventIcon { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .eventBody { min-width: 0; flex: 1; }
+  .eventName { font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .eventTimer { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-soft); margin-top: 1px; white-space: nowrap; }
+  .eventBarWrap { height: 4px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+  .eventBar { height: 100%; border-radius: 999px; background: var(--plum); width: 0%; transition: width 0.6s linear; }
+  .eventPct { font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; color: var(--ink-soft); margin-top: 2px; text-align: right; }
+  .eventDelBtn { position: absolute; top: -3px; right: -3px; width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper-card); color: var(--ink-soft); font-size: 8px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; padding: 0; }
+  .eventRow:hover .eventDelBtn { opacity: 1; }
+
+  .chatSidebar.collapsed { width: 42px; padding: 10px 7px; }
+  .chatSidebar.collapsed > *:not(.chatSidebarHead) { display: none; }
+  .chatSidebar.collapsed .chatSidebarHead b { display: none; }
+  .chatSidebar.collapsed .chatCollapseBtn { margin: auto; }
+
   @media (max-width: 1150px) {
     .assignGrid { display: block; height: auto; min-height: 0; }
     .assignMain { height: auto; overflow: visible; }
     .scheduleSidebar { display: none; }
-    .chatSidebar { display: none; }
+    .chatColumn { display: none; }
   }
   .personCol h3 { margin: 0 0 6px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
   .personCol.jayce h3 { color: var(--jayce); } .personCol.anna h3 { color: var(--anna); }
@@ -125,10 +165,6 @@
   .sharedTag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-top: 4px; display: inline-block; }
   .chatSidebarHead { display:flex; align-items:center; justify-content:space-between; gap:6px; flex-shrink:0; }
   .chatCollapseBtn { font-family: 'IBM Plex Mono', monospace; font-size: 10px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); border-radius: 999px; padding: 3px 8px; cursor: pointer; }
-  .chatSidebar.collapsed { width: 42px; padding: 10px 7px; }
-  .chatSidebar.collapsed > *:not(.chatSidebarHead) { display: none; }
-  .chatSidebar.collapsed .chatSidebarHead b { display:none; }
-  .chatSidebar.collapsed .chatCollapseBtn { margin:auto; }
   .statusPairRow { display: flex; align-items: center; gap: 4px; }
   .statusPairRow .plabel { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--ink-soft); width: 14px; text-align: center; }
 
@@ -293,17 +329,31 @@
 <div class="container">
 <div class="assignGrid">
 
-  <aside class="chatSidebar" id="chatSidebar">
-    <div class="chatSidebarHead"><b>💬 Chat</b><button class="chatCollapseBtn" id="chatCollapseBtn" title="Hide chat">‹</button></div>
-    <div class="chatMiniMessages" id="chatMiniMessages"></div>
-    <div class="chatMiniInputBar">
-      <textarea id="chatMiniInput" rows="1" placeholder="Type a message..."></textarea>
-      <button id="chatMiniSend">➤</button>
-    </div>
-    <div class="heartWrap">
-      <button class="heartBtn" id="heartBtnDesktop"><span class="heartFill" id="heartFillDesktop"></span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
-    </div>
-  </aside>
+  <div class="chatColumn" id="chatColumn">
+    <aside class="eventsSidebar" id="eventsSidebar">
+      <div class="eventsSidebarHead"><b>⏳ Countdowns</b><button class="eventsAddBtn" id="eventsAddBtn" title="Add a countdown">+</button></div>
+      <div class="eventsAddForm" id="eventsAddForm" style="display:none;">
+        <div class="row">
+          <input id="eventIconInput" maxlength="4" placeholder="📌">
+          <input id="eventNameInput" placeholder="Event name (e.g. AP Bio)">
+        </div>
+        <input id="eventDateInput" type="datetime-local">
+        <button id="eventAddConfirm" type="button">+ Add countdown</button>
+      </div>
+      <div class="eventsList" id="eventsList"></div>
+    </aside>
+    <aside class="chatSidebar" id="chatSidebar">
+      <div class="chatSidebarHead"><b>💬 Chat</b><button class="chatCollapseBtn" id="chatCollapseBtn" title="Hide chat">‹</button></div>
+      <div class="chatMiniMessages" id="chatMiniMessages"></div>
+      <div class="chatMiniInputBar">
+        <textarea id="chatMiniInput" rows="1" placeholder="Type a message..."></textarea>
+        <button id="chatMiniSend">➤</button>
+      </div>
+      <div class="heartWrap">
+        <button class="heartBtn" id="heartBtnDesktop"><span class="heartFill" id="heartFillDesktop"></span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
+      </div>
+    </aside>
+  </div>
 
   <div class="assignMain">
     <div class="toolbar">
@@ -708,7 +758,7 @@
     return s === 'yes' || s === 'y' || s === 'true' || s === '1';
   }
 
-  let db, assignmentsRef, classesRef, messagesRef, schedulesRef, overridesRef;
+  let db, assignmentsRef, classesRef, messagesRef, schedulesRef, overridesRef, countdownEventsRef;
   const connStatus = document.getElementById('connStatusText');
   const connDot = document.getElementById('connDot');
 
@@ -739,7 +789,7 @@
       throw err;
     });
   }
-  let assignments = [], classes = [], messages = [];
+  let assignments = [], classes = [], messages = [], countdownEvents = [];
   let schedules = {}; // key: `${person}_${dayType}` -> {periods:[{time,className}]}
   let todayOverride = null; // dayType string or null
   let classFilterMode = 'shared'; // overwritten to the signed-in person's own name once they log in
@@ -769,6 +819,7 @@
     messagesRef = db.collection("messages");
     schedulesRef = db.collection("schedules");
     overridesRef = db.collection("dayOverrides");
+    countdownEventsRef = db.collection("countdownEvents");
 
     classesRef.onSnapshot((snap) => {
       classes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -804,9 +855,15 @@
       renderTodayWidget();
     }, (err) => console.error('Day-override listener error:', err));
 
+    countdownEventsRef.onSnapshot((snap) => {
+      countdownEvents = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.eventAt - b.eventAt);
+      renderCountdownEvents();
+    }, (err) => console.error('Countdown events listener error:', err));
+
     setInterval(checkAutoTransitions, 60000);
     setInterval(renderTodayWidget, 30000); // keeps the progress bar advancing without waiting for a data change
     setInterval(tickCountdowns, 1000);
+    setInterval(tickEventCountdowns, 1000);
   }
 
   // ===================== AUTO STATUS TRANSITIONS =====================
@@ -880,6 +937,95 @@
       cdEl.textContent = formatHMS(remaining) + ' until next class';
     });
   }
+
+  // ===================== COUNTDOWN EVENTS (behind the chat panel) =====================
+  // Small standalone feature: a handful of named events (e.g. AP exams) with a live
+  // days/hours/minutes/seconds countdown, plus a progress bar showing how far along we
+  // are between the start of the school year (most recent Aug 13) and the event itself.
+  function schoolYearStart(eventMs) {
+    const d = new Date(eventMs);
+    let start = new Date(d.getFullYear(), 7, 13, 0, 0, 0, 0).getTime(); // Aug is month index 7
+    if (start > eventMs) start = new Date(d.getFullYear() - 1, 7, 13, 0, 0, 0, 0).getTime();
+    return start;
+  }
+  function renderCountdownEvents() {
+    const list = document.getElementById('eventsList');
+    if (!list) return;
+    list.innerHTML = '';
+    if (countdownEvents.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'eventsEmpty';
+      empty.textContent = 'No countdowns yet — tap + to add one.';
+      list.appendChild(empty);
+      return;
+    }
+    countdownEvents.forEach(ev => {
+      const row = document.createElement('div'); row.className = 'eventRow';
+      const icon = document.createElement('div'); icon.className = 'eventIcon'; icon.textContent = ev.icon || '📌';
+      const body = document.createElement('div'); body.className = 'eventBody';
+      const name = document.createElement('div'); name.className = 'eventName'; name.textContent = ev.name; name.title = ev.name;
+      const timer = document.createElement('div'); timer.className = 'eventTimer'; timer.id = 'eventTimer-' + ev.id;
+      const barWrap = document.createElement('div'); barWrap.className = 'eventBarWrap';
+      const bar = document.createElement('div'); bar.className = 'eventBar'; bar.id = 'eventBar-' + ev.id;
+      barWrap.appendChild(bar);
+      const pct = document.createElement('div'); pct.className = 'eventPct'; pct.id = 'eventPct-' + ev.id;
+      body.appendChild(name); body.appendChild(timer); body.appendChild(barWrap); body.appendChild(pct);
+      const del = document.createElement('button'); del.className = 'eventDelBtn'; del.textContent = '✕'; del.title = 'Remove';
+      del.onclick = async () => {
+        const ok = await showConfirm('Remove countdown?', `"${ev.name}" will be removed.`, 'Remove');
+        if (ok) trackWrite(countdownEventsRef.doc(ev.id).delete()).catch(err => alert('Could not remove: ' + err.message));
+      };
+      row.appendChild(icon); row.appendChild(body); row.appendChild(del);
+      list.appendChild(row);
+    });
+    tickEventCountdowns();
+  }
+  function tickEventCountdowns() {
+    const now = Date.now();
+    countdownEvents.forEach(ev => {
+      const timerEl = document.getElementById('eventTimer-' + ev.id);
+      const barEl = document.getElementById('eventBar-' + ev.id);
+      const pctEl = document.getElementById('eventPct-' + ev.id);
+      if (!timerEl || !barEl || !pctEl) return;
+      const remaining = ev.eventAt - now;
+      if (remaining <= 0) {
+        timerEl.textContent = "It's here! 🎉";
+        barEl.style.width = '100%'; pctEl.textContent = '100.00%';
+        return;
+      }
+      const totalSec = Math.floor(remaining / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+      timerEl.textContent = `${days}d ${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      const start = schoolYearStart(ev.eventAt);
+      const p = Math.min(100, Math.max(0, (now - start) / (ev.eventAt - start) * 100));
+      barEl.style.width = p + '%';
+      pctEl.textContent = p.toFixed(2) + '%';
+    });
+  }
+  document.getElementById('eventsAddBtn').onclick = () => {
+    const form = document.getElementById('eventsAddForm');
+    form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+    if (form.style.display === 'flex') document.getElementById('eventNameInput').focus();
+  };
+  document.getElementById('eventAddConfirm').onclick = () => {
+    const icon = document.getElementById('eventIconInput').value.trim() || '📌';
+    const name = document.getElementById('eventNameInput').value.trim();
+    const dateVal = document.getElementById('eventDateInput').value;
+    if (!name || !dateVal) { showToast('Give the event a name and a date/time.'); return; }
+    const eventAt = new Date(dateVal).getTime();
+    if (isNaN(eventAt)) { showToast('That date/time didn\'t parse — try again.'); return; }
+    trackWrite(countdownEventsRef.add({ icon, name, eventAt, createdAt: firebase.firestore.FieldValue.serverTimestamp() }))
+      .then(() => {
+        document.getElementById('eventIconInput').value = '';
+        document.getElementById('eventNameInput').value = '';
+        document.getElementById('eventDateInput').value = '';
+        document.getElementById('eventsAddForm').style.display = 'none';
+      })
+      .catch(err => alert('Could not add countdown: ' + err.message));
+  };
 
   function renderTodayWidget() {
     const dt = currentDayType();
