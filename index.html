@@ -19,12 +19,12 @@
   :root {
     --paper: #dde3df; --paper-card: #eef1ee; --ink: #262b2a; --ink-soft: #5b625f; --line: #c3ccc6;
     --plum: #564a86; --plum-dark: #453a70; --danger: #a83c3c; --ok: #3f7a4e; --radius: 4px;
-    --jayce: #6d5c5e; --anna: #c14e72; --card-bg: #fff; --modal-bg: #fff;
+    --jayce: #6d5c5e; --anna: #c14e72; --card-bg: #fff; --modal-bg: #fff; --status-pending-bg: #dfe1de; --status-pending-fg: #4a4f4c;
   }
   html[data-theme="dark"] {
     --paper: #1c1e1d; --paper-card: #262a28; --ink: #e8e9e6; --ink-soft: #9aa19c; --line: #3a3f3c;
     --plum: #8b7ac9; --plum-dark: #a596dd; --danger: #e08a7d; --ok: #7fc493;
-    --jayce: #b3999c; --anna: #e594ae; --card-bg: #262a28; --modal-bg: #2d3230;
+    --jayce: #b3999c; --anna: #e594ae; --card-bg: #262a28; --modal-bg: #2d3230; --status-pending-bg: #343a37; --status-pending-fg: #d6dbd7;
   }
   * { box-sizing: border-box; }
   input, select, textarea { background: var(--card-bg); color: var(--ink); }
@@ -121,6 +121,14 @@
 
   .statusCol { display: flex; flex-direction: column; gap: 4px; }
   .statusSelect { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; padding: 4px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg); }
+  .statusSelect:disabled { opacity: 1; cursor: not-allowed; }
+  .sharedTag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-top: 4px; display: inline-block; }
+  .chatSidebarHead { display:flex; align-items:center; justify-content:space-between; gap:6px; flex-shrink:0; }
+  .chatCollapseBtn { font-family: 'IBM Plex Mono', monospace; font-size: 10px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); border-radius: 999px; padding: 3px 8px; cursor: pointer; }
+  .chatSidebar.collapsed { width: 42px; padding: 10px 7px; }
+  .chatSidebar.collapsed > *:not(.chatSidebarHead) { display: none; }
+  .chatSidebar.collapsed .chatSidebarHead b { display:none; }
+  .chatSidebar.collapsed .chatCollapseBtn { margin:auto; }
   .statusPairRow { display: flex; align-items: center; gap: 4px; }
   .statusPairRow .plabel { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--ink-soft); width: 14px; text-align: center; }
 
@@ -128,9 +136,9 @@
   .del-btn:hover { color: var(--danger); }
   .empty { text-align: center; padding: 60px 20px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
 
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(38,43,42,0.4); align-items: center; justify-content: center; padding: 20px; z-index: 10; }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(38,43,42,0.4); align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
   .overlay.show { display: flex; }
-  .modal { background: var(--card-bg); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; overflow-y: auto; }
+  .modal { position: relative; z-index: 1001; background: var(--card-bg); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; overflow-y: auto; }
   .modal h2 { font-family: 'Fraunces', serif; font-size: 20px; margin: 0 0 4px; }
   .field label { display: block; font-size: 11px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); margin-bottom: 4px; }
   .field input, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: 14px; }
@@ -245,6 +253,8 @@
     .hourFields input { width: 100%; min-width: 0; }
     .dayTypeBlock { min-width: 0; overflow: hidden; }
   }
+@keyframes faviconFlash { 0%,49%{opacity:1} 50%,100%{opacity:.15} }
+  body.hasUnread .chatSidebarHead b { animation: faviconFlash 1s steps(1,end) infinite; }
 </style>
 </head>
 <body>
@@ -283,8 +293,8 @@
 <div class="container">
 <div class="assignGrid">
 
-  <aside class="chatSidebar">
-    <b>💬 Chat</b>
+  <aside class="chatSidebar" id="chatSidebar">
+    <div class="chatSidebarHead"><b>💬 Chat</b><button class="chatCollapseBtn" id="chatCollapseBtn" title="Hide chat">‹</button></div>
     <div class="chatMiniMessages" id="chatMiniMessages"></div>
     <div class="chatMiniInputBar">
       <textarea id="chatMiniInput" rows="1" placeholder="Type a message..."></textarea>
@@ -1065,7 +1075,7 @@
       const tag = document.createElement('span'); tag.className = 'tag';
       tag.style.background = hexToRgba(ci.colorHex, 0.15); tag.style.color = ci.colorHex; tag.textContent = a.class;
       info.appendChild(nameEl); info.appendChild(document.createElement('br')); info.appendChild(tag);
-      if (a.shared) { const s = document.createElement('span'); s.className='tag'; s.style.background='#e2e2e2'; s.style.color='var(--ink-soft)'; s.textContent='Shared'; s.style.marginLeft='4px'; info.appendChild(s); }
+      if (a.shared) { const s = document.createElement('span'); s.className='sharedTag'; s.style.background='var(--paper-card)'; s.style.color='var(--ink-soft)'; s.textContent='Shared'; s.style.marginLeft='4px'; info.appendChild(s); }
 
       const stampEl = document.createElement('div'); stampEl.className = `stamp ${stamp.cls}`; stampEl.textContent = stamp.text;
 
@@ -1074,11 +1084,11 @@
         PEOPLE.forEach(p => {
           const row = document.createElement('div'); row.className = 'statusPairRow';
           const lbl = document.createElement('span'); lbl.className = 'plabel'; lbl.textContent = p[0];
-          const sel = buildStatusSelect(a['status' + p], (val) => setStatus(a, val, p));
+          const sel = buildStatusSelect(a['status' + p], (val) => setStatus(a, val, p), a);
           row.appendChild(lbl); row.appendChild(sel); statusCol.appendChild(row);
         });
       } else {
-        statusCol.appendChild(buildStatusSelect(a.status, (val) => setStatus(a, val, null)));
+        statusCol.appendChild(buildStatusSelect(a.status, (val) => setStatus(a, val, null), a));
       }
 
       const actionCol = document.createElement('div'); actionCol.style.display = 'flex'; actionCol.style.flexDirection = 'column'; actionCol.style.gap = '2px';
@@ -1096,7 +1106,7 @@
     });
   }
   const STATUS_COLORS = {
-    'pending':        { bg: '#dfe1de', fg: '#4a4f4c' },
+    'pending':        { bg: 'var(--status-pending-bg)', fg: 'var(--status-pending-fg)' },
     'in-progress':    { bg: '#f2cf6b', fg: '#5c4308' },
     'missing':        { bg: '#e19a91', fg: '#6e1f14' },
     'submitted':      { bg: '#9bd7ac', fg: '#12401f' },
@@ -1107,17 +1117,23 @@
     const c = STATUS_COLORS[val] || STATUS_COLORS.pending;
     sel.style.background = c.bg; sel.style.color = c.fg; sel.style.borderColor = c.fg;
   }
-  function buildStatusSelect(currentVal, onChange) {
+  function buildStatusSelect(currentVal, onChange, assignment = null) {
     const sel = document.createElement('select'); sel.className = 'statusSelect';
-    Object.entries(STATUS_LABELS).forEach(([val, label]) => {
+    const overdue = assignment && assignment.dueDate < todayStr();
+    const allowed = overdue ? [['missing', STATUS_LABELS.missing], ['submitted', STATUS_LABELS.submitted]] : Object.entries(STATUS_LABELS);
+    allowed.forEach(([val, label]) => {
       const opt = document.createElement('option'); opt.value = val; opt.textContent = label;
       if (currentVal === val) opt.selected = true; sel.appendChild(opt);
     });
+    if (overdue) { sel.title = 'Past due — only Missing or Submitted is allowed'; }
     styleStatusSelect(sel, currentVal);
     sel.onchange = () => { styleStatusSelect(sel, sel.value); onChange(sel.value); };
     return sel;
   }
   function setStatus(a, newStatus, person) {
+    if (a.dueDate < todayStr() && newStatus !== 'missing' && newStatus !== 'submitted') {
+      render(); showToast('Past-due assignments can only be marked Missing or Submitted.'); return;
+    }
     const field = person ? 'status' + person : 'status';
     const update = { [field]: newStatus };
     if (newStatus === 'redo-pending') update[(person ? 'redoUnlock' + person : 'redoUnlockAt')] = Date.now() + 24 * 3600 * 1000;
@@ -1352,9 +1368,21 @@
         document.getElementById(id).classList.toggle('active', id === navId);
         document.getElementById(panels[id]).style.display = (id === navId) ? 'block' : 'none';
       });
-      if (navId === 'navChat') scrollChatToBottom();
+      if (navId === 'navChat') { markChatRead(); scrollChatToBottom(); }
     };
   });
+
+  // ===================== COLLAPSIBLE CHAT SIDEBAR =====================
+  const chatSidebar = document.getElementById('chatSidebar');
+  const CHAT_COLLAPSED_KEY = 'dook_chat_collapsed';
+  function applyChatCollapsed() {
+    const collapsed=localStorage.getItem(CHAT_COLLAPSED_KEY)==='1';
+    chatSidebar.classList.toggle('collapsed',collapsed);
+    document.getElementById('chatCollapseBtn').textContent=collapsed?'›':'‹';
+    document.getElementById('chatCollapseBtn').title=collapsed?'Show chat':'Hide chat';
+  }
+  document.getElementById('chatCollapseBtn').onclick=()=>{localStorage.setItem(CHAT_COLLAPSED_KEY,chatSidebar.classList.contains('collapsed')?'0':'1');applyChatCollapsed();};
+  applyChatCollapsed();
 
   // ===================== SCHEDULE EDITOR (preset hours) =====================
   // Odd hours 1/3/5/7 and Even hours 2/4/6 map onto the matching numbered hour in the Trad
@@ -1602,14 +1630,33 @@
     row.appendChild(bubble); row.appendChild(meta);
     return row;
   }
+  const CHAT_READ_KEY = 'dook_chat_last_read';
+  let chatReadId = localStorage.getItem(CHAT_READ_KEY) || null;
+  let chatUnreadInitialized = false;
+  function setUnreadIcon(unread) {
+    let icon = document.getElementById('unreadFavicon');
+    if (!icon) { icon = document.createElement('link'); icon.id = 'unreadFavicon'; icon.rel = 'icon'; document.head.appendChild(icon); }
+    clearInterval(setUnreadIcon.timer);
+    if (!unread) { icon.href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".88em" font-size="86">😛</text></svg>'; return; }
+    const frames = ['data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".88em" font-size="86">💬</text></svg>','data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".88em" font-size="86">❗</text></svg>'];
+    let frame=0; icon.href=frames[0]; setUnreadIcon.timer=setInterval(()=>icon.href=frames[++frame%2],650);
+  }
+  function updateChatUnread() {
+    if (!messages.length) return setUnreadIcon(false);
+    if (!chatUnreadInitialized) {
+      if (!chatReadId || !messages.some(m => m.id === chatReadId)) chatReadId = messages[messages.length - 1].id;
+      localStorage.setItem(CHAT_READ_KEY, chatReadId); chatUnreadInitialized=true; setUnreadIcon(false); return;
+    }
+    const idx=messages.findIndex(m=>m.id===chatReadId);
+    const newer=idx>=0 ? messages.slice(idx+1) : messages;
+    setUnreadIcon(newer.some(m=>m.sender!==myName));
+  }
+  function markChatRead() { if(messages.length){chatReadId=messages[messages.length-1].id;localStorage.setItem(CHAT_READ_KEY,chatReadId);} setUnreadIcon(false); }
   function renderChat() {
     const full = document.getElementById('chatMessages'); full.innerHTML = '';
     const mini = document.getElementById('chatMiniMessages'); mini.innerHTML = '';
-    messages.forEach(m => {
-      full.appendChild(buildMessageRow(m));
-      mini.appendChild(buildMessageRow(m));
-    });
-    scrollChatToBottom();
+    messages.forEach(m => { full.appendChild(buildMessageRow(m)); mini.appendChild(buildMessageRow(m)); });
+    updateChatUnread(); scrollChatToBottom();
   }
   function scrollChatToBottom() {
     const c = document.getElementById('chatMessages'); c.scrollTop = c.scrollHeight;
