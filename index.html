@@ -69,7 +69,7 @@
   .chatColumn { position: relative; height: 100%; min-height: 0; min-width: 0; }
   .chatSidebar { position: absolute; top: 0; right: 0; height: 100%; width: 100%; z-index: 2; min-height: 0; min-width: 0; overflow: hidden; background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; transition: width 0.22s ease, padding 0.22s ease; }
   .chatSidebar b { font-size: 13px; flex-shrink: 0; }
-  .chatMiniMessages { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 5px; padding: 8px 0; }
+  .chatMiniMessages { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 5px; padding: 8px 8px 8px 0; box-sizing: border-box; scrollbar-gutter: stable; }
   .chatMiniMessages .msg-row { max-width: 100%; min-width: 0; }
   .chatMiniMessages .bubble { overflow-wrap: anywhere; }
   .chatMiniMessages .bubble { font-size: 12px; padding: 6px 10px; }
@@ -175,6 +175,11 @@
   .overlay { display: none; position: fixed; inset: 0; background: rgba(38,43,42,0.4); align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
   .overlay.show { display: flex; }
   .modal { position: relative; z-index: 1001; background: var(--card-bg); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; max-height: 86vh; overflow-y: auto; }
+  /* The confirm dialog is always opened from on top of another modal (e.g. delete class
+     from within "Manage classes"), so it needs a higher stacking order than the base
+     .overlay/.modal layer or it renders underneath whichever modal opened it. */
+  #overlayConfirm { z-index: 1100; }
+  #overlayConfirm .modal { z-index: 1101; }
   .modal h2 { font-family: 'Fraunces', serif; font-size: 20px; margin: 0 0 4px; }
   .field label { display: block; font-size: 11px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); margin-bottom: 4px; }
   .field input, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: 14px; }
@@ -224,7 +229,7 @@
 
   #chatPanel, #schedulePanel { display: none; }
   #chatWrap { max-width: 1500px; margin: 0 auto; padding: 0 24px 40px; display: flex; flex-direction: column; height: calc(100vh - 160px); min-height: 400px; }
-  #chatMessages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 10px 0; }
+  #chatMessages { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 6px; padding: 10px 10px 10px 0; box-sizing: border-box; scrollbar-gutter: stable; }
   .msg-row { display: flex; flex-direction: column; max-width: 75%; }
   .msg-row.mine { align-self: flex-end; align-items: flex-end; }
   .msg-row.theirs { align-self: flex-start; align-items: flex-start; }
@@ -293,7 +298,7 @@
   body.hasUnread .chatSidebarHead b { animation: faviconFlash 1s steps(1,end) infinite; }
 
   /* ===================== PIXELS GAME ===================== */
-  .pixelsWrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .pixelsWrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
   .pixelsCard { background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
   .pixelsHead { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .pixelsHead b { font-family: 'Fraunces', serif; font-size: 18px; }
@@ -311,7 +316,15 @@
   .pixelsWordBtn:hover { border-color: var(--plum); background: var(--paper-card); }
 
   .pixelsCanvasWrap { display: flex; justify-content: center; }
-  .pixelsCanvas { display: grid; grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(16, 1fr); gap: 1px; width: 100%; max-width: 420px; aspect-ratio: 1 / 1; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; touch-action: none; user-select: none; }
+  /* The grid itself stays square (it's pixel art), but it's allowed to grow much larger than
+     before — sized off viewport height too — so on a wide monitor it isn't a small square
+     stranded in a sea of blank margin. */
+  .pixelsCanvas { display: grid; grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(16, 1fr); gap: 1px; width: 100%; max-width: min(560px, 62vh); aspect-ratio: 1 / 1; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; touch-action: none; user-select: none; }
+  /* On wide screens, put the canvas and its controls side by side instead of stacking them
+     in one narrow centered column — that's what left the huge blank gutters on rectangular
+     monitors. */
+  .pixelsDrawArea { display: flex; gap: 24px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+  .pixelsDrawControls { display: flex; flex-direction: column; gap: 14px; flex: 1 1 240px; min-width: 220px; max-width: 360px; }
   .pixelsCell { width: 100%; aspect-ratio: 1 / 1; background: #fff; cursor: pointer; }
   html[data-theme="dark"] .pixelsCell { background: #3a3f3c; }
   .pixelsCell:active { opacity: 0.85; }
@@ -1614,7 +1627,7 @@
     document.getElementById('chatCollapseBtn').textContent=collapsed?'‹':'›';
     document.getElementById('chatCollapseBtn').title=collapsed?'Show chat':'Hide chat';
   }
-  document.getElementById('chatCollapseBtn').onclick=()=>{localStorage.setItem(CHAT_COLLAPSED_KEY,chatSidebar.classList.contains('collapsed')?'0':'1');applyChatCollapsed();};
+  document.getElementById('chatCollapseBtn').onclick=()=>{localStorage.setItem(CHAT_COLLAPSED_KEY,chatSidebar.classList.contains('collapsed')?'0':'1');applyChatCollapsed();updateChatUnread();};
   applyChatCollapsed();
 
   // ===================== SCHEDULE EDITOR (preset hours) =====================
@@ -1874,6 +1887,18 @@
     const frames = ['data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".88em" font-size="86">💬</text></svg>','data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".88em" font-size="86">❗</text></svg>'];
     let frame=0; icon.href=frames[0]; setUnreadIcon.timer=setInterval(()=>icon.href=frames[++frame%2],650);
   }
+  // The mini chat inside the sidebar is visible on the Assignments tab (the default view)
+  // just as much as the dedicated Chat tab is, so "have I actually seen this message"
+  // needs to account for both, not only navChat.
+  function chatIsOnScreen() {
+    const assignmentsPanel = document.getElementById('assignmentsPanel');
+    const chatPanel = document.getElementById('chatPanel');
+    const sidebar = document.getElementById('chatSidebar');
+    const assignmentsVisible = assignmentsPanel && assignmentsPanel.style.display !== 'none';
+    const sidebarOpen = sidebar && !sidebar.classList.contains('collapsed');
+    const chatTabActive = chatPanel && chatPanel.style.display !== 'none';
+    return chatTabActive || (assignmentsVisible && sidebarOpen);
+  }
   function updateChatUnread() {
     if (!messages.length) return setUnreadIcon(false);
     if (!chatUnreadInitialized) {
@@ -1882,7 +1907,11 @@
     }
     const idx=messages.findIndex(m=>m.id===chatReadId);
     const newer=idx>=0 ? messages.slice(idx+1) : messages;
-    setUnreadIcon(newer.some(m=>m.sender!==myName));
+    const unread = newer.some(m=>m.sender!==myName);
+    // If the chat is actually on screen and the tab has focus, count it as read right away
+    // instead of flashing something the person is already looking at.
+    if (unread && chatIsOnScreen() && document.hasFocus()) { markChatRead(); return; }
+    setUnreadIcon(unread);
   }
   function markChatRead() { if(messages.length){chatReadId=messages[messages.length-1].id;localStorage.setItem(CHAT_READ_KEY,chatReadId);} setUnreadIcon(false); }
   function renderChat() {
@@ -1900,7 +1929,14 @@
     if (!text) return; inputEl.value = '';
     trackWrite(messagesRef.add({ sender: myName, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() }))
       .catch(err => alert('Message failed to send: ' + err.message));
+    // Sending a reply means you've seen the conversation up to this point — clear the flash now
+    // rather than waiting on the next snapshot update.
+    markChatRead();
   }
+  // Catch messages that arrived while the tab was unfocused/hidden: re-check as soon as the
+  // person comes back, since the chat sidebar being visible now should still clear the flash.
+  window.addEventListener('focus', updateChatUnread);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') updateChatUnread(); });
   document.getElementById('chatSend').onclick = () => sendChatFrom(document.getElementById('chatInput'));
   document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatFrom(document.getElementById('chatInput')); } });
   document.getElementById('chatMiniSend').onclick = () => sendChatFrom(document.getElementById('chatMiniInput'));
@@ -2098,9 +2134,11 @@
     st.innerHTML = `Draw <b><span class="pixelsResult word">${gs.word}</span></b> on the 16×16 grid. When you're done, hit <b>Submit drawing</b> and "${otherP(myName)}" will guess it!`;
     wrap.appendChild(st);
 
+    const drawArea = document.createElement('div'); drawArea.className = 'pixelsDrawArea';
     const cw = document.createElement('div'); cw.className = 'pixelsCanvasWrap';
     cw.appendChild(pixelsBuildCanvas(gs));
-    wrap.appendChild(cw);
+    drawArea.appendChild(cw);
+    const controls = document.createElement('div'); controls.className = 'pixelsDrawControls';
 
     // Tools + palette
     const tools = document.createElement('div'); tools.className = 'pixelsToolRow';
@@ -2112,7 +2150,7 @@
     tools.appendChild(makeTool('🖌 Paint', 'paint'));
     tools.appendChild(makeTool('🪣 Fill', 'fill'));
     tools.appendChild(makeTool('🧽 Erase', 'erase'));
-    wrap.appendChild(tools);
+    controls.appendChild(tools);
 
     const pal = document.createElement('div'); pal.className = 'pixelsPalette';
     PIXEL_PALETTE.forEach(hex => {
@@ -2128,7 +2166,7 @@
       inp.click();
     };
     pal.appendChild(cust);
-    wrap.appendChild(pal);
+    controls.appendChild(pal);
 
     // Actions: clear + submit
     const actions = document.createElement('div'); actions.className = 'pixelsActions';
@@ -2138,7 +2176,10 @@
     const submitBtn = document.createElement('button'); submitBtn.className = 'pixelsBtn primary'; submitBtn.textContent = 'Submit drawing';
     submitBtn.onclick = () => pixelsSubmitDrawing(gs);
     actions.appendChild(submitBtn);
-    wrap.appendChild(actions);
+    controls.appendChild(actions);
+
+    drawArea.appendChild(controls);
+    wrap.appendChild(drawArea);
 
     return wrap;
   }
@@ -2176,6 +2217,7 @@
         cell.dataset.row = row; cell.dataset.col = col;
         cell.addEventListener('mousedown', (e) => { e.preventDefault(); pixelsPainting = true; paintCell(row, col); cell.style.background = pixelsDraft[pixelsCellIdx(row, col)]; });
         cell.addEventListener('mouseenter', () => { if (pixelsPainting) { paintCell(row, col); cell.style.background = pixelsDraft[pixelsCellIdx(row, col)]; } });
+        canvas.appendChild(cell); // the cell was never being added to the grid — this is why it rendered as an empty gray box
       }
     }
     const stopPaint = () => { pixelsPainting = false; };
