@@ -315,7 +315,7 @@
   .pixelsWordBtn { flex: 1 1 0; min-width: 130px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; padding: 16px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg); color: var(--ink); cursor: pointer; text-transform: capitalize; }
   .pixelsWordBtn:hover { border-color: var(--plum); background: var(--paper-card); }
 
-  .pixelsCanvasWrap { display: flex; justify-content: center; }
+  .pixelsCanvasWrap { display: flex; justify-content: center; flex: 1 1 420px; min-width: 260px; }
   /* The grid itself stays square (it's pixel art), but it's allowed to grow much larger than
      before — sized off viewport height too — so on a wide monitor it isn't a small square
      stranded in a sea of blank margin. */
@@ -1627,7 +1627,17 @@
     document.getElementById('chatCollapseBtn').textContent=collapsed?'‹':'›';
     document.getElementById('chatCollapseBtn').title=collapsed?'Show chat':'Hide chat';
   }
-  document.getElementById('chatCollapseBtn').onclick=()=>{localStorage.setItem(CHAT_COLLAPSED_KEY,chatSidebar.classList.contains('collapsed')?'0':'1');applyChatCollapsed();updateChatUnread();};
+  document.getElementById('chatCollapseBtn').onclick=()=>{
+    const opening = chatSidebar.classList.contains('collapsed'); // it's collapsed now, so this click opens it
+    localStorage.setItem(CHAT_COLLAPSED_KEY,opening?'0':'1');
+    applyChatCollapsed();
+    updateChatUnread();
+    // While collapsed, chatMiniMessages is display:none, so any scroll-to-bottom attempted
+    // during that time (e.g. a new message rendering in) silently fails since the hidden
+    // element reports zero scrollHeight — it lands scrollTop at 0 and stays there. Re-run
+    // it now that the container is actually visible again and has real layout.
+    if (opening) requestAnimationFrame(scrollChatToBottom);
+  };
   applyChatCollapsed();
 
   // ===================== SCHEDULE EDITOR (preset hours) =====================
